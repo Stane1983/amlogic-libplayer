@@ -97,7 +97,7 @@ OSD_DISP_MODE get_osd_display_mode()
     OSD_DISP_MODE ret = OSD_DISP_1080P; 
     char buf[32]; 
     memset(buf,0,sizeof(buf));
-    amsysfs_get_sysfs_str("/sys/class/display/mode", buf, 32)
+    amsysfs_get_sysfs_str("/sys/class/display/mode", buf, 32);
     if(!strncmp(buf,"720p",4)){
         ret = OSD_DISP_720P;
     }
