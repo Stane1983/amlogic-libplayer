@@ -203,7 +203,7 @@ static int rtmp_setupURL(RTMP *r, const char *uri)
     {
         RTMP_SetupStream(r, protocol, &hostname, port, &sockshost, &playpath,
         &tcUrl, &swfUrl, &pageUrl, &app, &auth, &swfHash, swfSize,
-        &flashVer, &subscribepath, &usherToken, dSeek, dStopOffset, bLiveStream, timeout);
+        &flashVer, &subscribepath, &usherToken, 0 /* WeebToken */, dSeek, dStopOffset, bLiveStream, timeout);
     }
     else
     {
