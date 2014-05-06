@@ -7,7 +7,6 @@
 #include <string.h>
 #include <errno.h>
 #include <linux/fb.h>
-#include <sys/system_properties.h>
 #include <log-print.h>
 #include "aml_resample.h"
 
