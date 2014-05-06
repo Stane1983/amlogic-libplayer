@@ -1,7 +1,8 @@
-M_PREFIX=$(LIBPLAYER_STAGING_DIR)
-ROOTFS?=$(M_PREFIX)
-LIB_DIR?=$(M_PREFIX)/usr/lib
-HEADERS_DIR?=$(M_PREFIX)/usr/include
+ROOTFS?=$(PREFIX)
+LIB_DIR?=$(PREFIX)/lib
+HEADERS_DIR?=$(INC_DIR)/include
+CROSS=$(CC:%gcc=%)
+QUITE_CMD=1
 
 TARGET_OBJS=ffmpegsource.o queue.o source.o streambufqueue.o streamsource.o thread_read.o\
 

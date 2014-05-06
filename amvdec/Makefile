@@ -1,12 +1,7 @@
-NAME = libamavutils
+TARGET = libamvdec.so
 
-TARGET = libamavutils.so
-
-TARGET_OBJS=amaudioutils.o amconfigutils.o amdisplayutils.o ammodule.o amsysfsutils.o Amvideoutils.o itemlist.o\
-
-TARGET=libamavutils.so
-
-LDFLAGS += -shared -lm -lrt -fPIC
+TARGET_OBJS = amlv4l.o
+TARGET_OBJS += amvideo.o
 
 TARGET_DIR=$(shell pwd)/../../../target
 STAGING_DIR=$(shell pwd)/../../../staging
@@ -23,6 +18,3 @@ $(TARGET): $(TARGET_OBJS)
 
 clean:
 	-rm -rf *.o $(TARGET)
-
-    
-

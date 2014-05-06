@@ -1,4 +1,3 @@
-PREFIX=$(LIBPLAYER_STAGING_DIR)/usr
 ROOTFS?=$(PREFIX)
 
 CROSS=$(CC:%gcc=%)
@@ -30,22 +29,28 @@ TARGET?=libamplayer.so
 
 TARGET_IS_LIB=$(TARGET:%so=yes)
 
-LDFLAGS+= -L$(INSTALL_DIR) -lavutil -lavformat -lavcodec -lm  -lpthread -lamavutils
+LDFLAGS+= -L$(INSTALL_DIR) -lavutil -lavformat -lavcodec -lm  -lpthread -lamcodec -lamavutils
 
-INSTALL_DIR?=$(PREFIX)/lib/libplayer
+INSTALL_DIR?=$(PREFIX)/lib
 LDFLAGS+=-shared 
 CFLAGS=$(DIRS:%/=-I$(SRC)/%/include) 
 
-ifeq ($(TARGET),libamplayer.so)
-    DIRS=player/
-else
-    DIRS=control/
-    CFLAGS+=-I$(SRC)/player/include
-endif
+DIRS  = player/
+DIRS += player/system/
 
 
 CFLAGS+= -I${SRCTREE}/../amffmpeg -I${SRCTREE}/../amcodec/include -I${SRCTREE}/../amadec/include
 CFLAGS+= -fPIC -g
+CFLAGS+=-mfpu=neon -mtune=cortex-a9 -march=armv7-a
+
+FLOAT=softfp
+
+ifdef BR2_ARM_EABIHF
+FLOAT = hard
+endif
+
+CFLAGS+=-mfloat-abi=$(FLOAT)
+
 target_all=  $(TARGET)
 
 
@@ -55,8 +60,8 @@ INCLUDE=${SRCTREE}/include/
 CFLAGS+=-Wall 
 #CFLAGS+=-Werror
 
-CFLAGS+=-O0  -gdwarf-2  -g
-#CFLAGS+=-O2
+#CFLAGS+=-O0  -gdwarf-2  -g
+CFLAGS+=-O2
 
 ifdef DOLBY_DAP
 LOCAL_CFLAGS += -DDOLBY_DAP_EN
@@ -81,7 +86,6 @@ clean:$(CLRDIR)
 	rm -rf $(target_all)
 
 install:$(target_all)
-	-install  $(INSTALL_FLAGS)  $(target_all)  $(INSTALL_DIR)
-	-install  $(INSTALL_FLAGS) $(DIRS:%/=$(SRC)/%/include/*)  $(PREFIX)/include
-    
+	-install  $(INSTALL_FLAGS)	$(target_all)  $(INSTALL_DIR)
+	-install  $(INSTALL_FLAGS) $(DIRS:%/=$(SRC)/%/include/*)  $(STAGING)/include    
 
