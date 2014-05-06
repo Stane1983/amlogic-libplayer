@@ -49,16 +49,6 @@ static int disp_height = 1080;
 
 int amvideo_utils_get_freescale_enable(void)
 {
-    int ret = 0;
-    char buf[32];
-    
-    ret = amsysfs_get_sysfs_str("/sys/class/graphics/fb0/free_scale", buf, 32);
-    if((ret >=0) && strncmp(buf, "free_scale_enalbe:[0x1]", 
-        strlen("free_scale_enalbe:[0x1]"))==0){
-        
-        return 1;
-        
-    }
     return 0;
 }
 
@@ -66,33 +56,13 @@ int  amvideo_utils_get_global_offset(void)
 {
     LOG_FUNCTION_NAME
     int offset = 0;
-    char buf[SYSCMD_BUFSIZE];
-    int ret;
-    ret = amsysfs_get_sysfs_str(VIDEO_GLOBAL_OFFSET_PATH, buf, SYSCMD_BUFSIZE);
-    if (ret < 0) {
-        return offset;
-    }
-    if (sscanf(buf, "%d", &offset) == 1) {
-        LOGI("video global_offset %d\n", offset);
-    }
+
     return offset;
 }
 
 int is_video_on_vpp2(void)
 {
     int ret = 0;
-    
-    char val[32];
-    memset(val, 0, sizeof(val));
-    if (property_get("ro.vout.dualdisplay4", val, "false")
-        && strcmp(val, "true") == 0) {       
-        memset(val, 0, sizeof(val));
-        if (amsysfs_get_sysfs_str("/sys/module/amvideo/parameters/cur_dev_idx", val, sizeof(val)) == 0) {
-            if ((strncmp(val, "1", 1) == 0)) {
-                ret = 1;
-            }
-        }
-    }
 
     return ret;
 }
@@ -100,14 +70,6 @@ int is_video_on_vpp2(void)
 int is_vertical_panel(void)
 {
     int ret = 0;
-    
-    // ro.vout.dualdisplay4.ver-panel
-    char val[32];
-    memset(val, 0, sizeof(val));
-    if (property_get("ro.vout.dualdisplay4.ver-panel", val, "false")
-        && strcmp(val, "true") == 0) {       
-        ret = 1;
-    }
 
     return ret;
 }
@@ -115,14 +77,6 @@ int is_vertical_panel(void)
 int is_vertical_panel_reverse(void)
 {
     int ret = 0;
-    
-    // ro.vout.dualdisplay4.ver-panel
-    char val[32];
-    memset(val, 0, sizeof(val));
-    if (property_get("ro.ver-panel.reverse", val, "false")
-        && strcmp(val, "true") == 0) {       
-        ret = 1;
-    }
 
     return ret;
 }
@@ -142,8 +96,8 @@ OSD_DISP_MODE get_osd_display_mode()
 {
     OSD_DISP_MODE ret = OSD_DISP_1080P; 
     char buf[32]; 
-    memset(buf,0,sizeof(buf));	
-    property_get("ubootenv.var.outputmode",buf,"1080p");
+    memset(buf,0,sizeof(buf));
+    amsysfs_get_sysfs_str("/sys/class/display/mode", buf, 32)
     if(!strncmp(buf,"720p",4)){
         ret = OSD_DISP_720P;
     }
@@ -173,41 +127,6 @@ OSD_DISP_MODE get_osd_display_mode()
 
 int get_device_win(OSD_DISP_MODE dismod, int *x, int *y, int *w, int *h)
 {
-    const char *prop1080i_h ="ubootenv.var.1080ioutputheight";
-    const char *prop1080i_w ="ubootenv.var.1080ioutputwidth";
-    const char *prop1080i_x ="ubootenv.var.1080ioutputx";
-    const char *prop1080i_y ="ubootenv.var.1080ioutputy";
-
-    const char *prop1080p_h ="ubootenv.var.1080poutputheight";
-    const char *prop1080p_w ="ubootenv.var.1080poutputwidth";
-    const char *prop1080p_x ="ubootenv.var.1080poutputx";
-    const char *prop1080p_y ="ubootenv.var.1080poutputy";
-
-    const char *prop720p_h ="ubootenv.var.720poutputheight";
-    const char *prop720p_w ="ubootenv.var.720poutputwidth";
-    const char *prop720p_x ="ubootenv.var.720poutputx";
-    const char *prop720p_y ="ubootenv.var.720poutputy";
-
-    const char *prop480i_h ="ubootenv.var.480ioutputheight";
-    const char *prop480i_w ="ubootenv.var.480ioutputwidth";
-    const char *prop480i_x ="ubootenv.var.480ioutputx";
-    const char *prop480i_y ="ubootenv.var.480ioutputy";
-
-    const char *prop480p_h ="ubootenv.var.480poutputheight";
-    const char *prop480p_w ="ubootenv.var.480poutputwidth";
-    const char *prop480p_x ="ubootenv.var.480poutputx";
-    const char *prop480p_y ="ubootenv.var.480poutputy";
-
-    const char *prop576i_h ="ubootenv.var.576ioutputheight";
-    const char *prop576i_w ="ubootenv.var.576ioutputwidth";
-    const char *prop576i_x ="ubootenv.var.576ioutputx";
-    const char *prop576i_y ="ubootenv.var.576ioutputy";
-
-    const char *prop576p_h ="ubootenv.var.576poutputheight";
-    const char *prop576p_w ="ubootenv.var.576poutputwidth";
-    const char *prop576p_x ="ubootenv.var.576poutputx";
-    const char *prop576p_y ="ubootenv.var.576poutputy";
-
     char prop_value_h[32];
     memset(prop_value_h,0,32);
     char prop_value_w[32];
@@ -220,52 +139,52 @@ int get_device_win(OSD_DISP_MODE dismod, int *x, int *y, int *w, int *h)
     switch(dismod)
     {
     case OSD_DISP_1080P:
-        property_get(prop1080p_h,prop_value_h,"1080");
-        property_get(prop1080p_w,prop_value_w,"1920");
-        property_get(prop1080p_x,prop_value_x,"0");
-        property_get(prop1080p_y,prop_value_y,"0");
+        strcpy(prop_value_h,"1080");
+        strcpy(prop_value_w,"1920");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     case OSD_DISP_1080I:
-        property_get(prop1080i_h,prop_value_h,"1080");
-        property_get(prop1080i_w,prop_value_w,"1920");
-        property_get(prop1080i_x,prop_value_x,"0");
-        property_get(prop1080i_y,prop_value_y,"0");
+        strcpy(prop_value_h,"1080");
+        strcpy(prop_value_w,"1920");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     case OSD_DISP_LVDS1080P:			
-        property_get(prop1080p_h,prop_value_h,"1080");
-        property_get(prop1080p_w,prop_value_w,"1920");
-        property_get(prop1080p_x,prop_value_x,"0");
-        property_get(prop1080p_y,prop_value_y,"0");
+        strcpy(prop_value_h,"1080");
+        strcpy(prop_value_w,"1920");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     case OSD_DISP_720P:
-        property_get(prop720p_h,prop_value_h,"720");
-        property_get(prop720p_w,prop_value_w,"1280");
-        property_get(prop720p_x,prop_value_x,"0");
-        property_get(prop720p_y,prop_value_y,"0");
+        strcpy(prop_value_h,"720");
+        strcpy(prop_value_w,"1280");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     case OSD_DISP_576P:
-        property_get(prop576p_h,prop_value_h,"576");
-        property_get(prop576p_w,prop_value_w,"720");
-        property_get(prop576p_x,prop_value_x,"0");
-        property_get(prop576p_y,prop_value_y,"0");
+        strcpy(prop_value_h,"576");
+        strcpy(prop_value_w,"720");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     case OSD_DISP_576I:
-        property_get(prop576i_h,prop_value_h,"576");
-        property_get(prop576i_w,prop_value_w,"720");
-        property_get(prop576i_x,prop_value_x,"0");
-        property_get(prop576i_y,prop_value_y,"0");
+        strcpy(prop_value_h,"576");
+        strcpy(prop_value_w,"720");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     case OSD_DISP_480P:
-        property_get(prop480p_h,prop_value_h,"480");
-        property_get(prop480p_w,prop_value_w,"720");
-        property_get(prop480p_x,prop_value_x,"0");
-        property_get(prop480p_y,prop_value_y,"0");
+        strcpy(prop_value_h,"480");
+        strcpy(prop_value_w,"720");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     case OSD_DISP_480I:
-        property_get(prop480i_h,prop_value_h,"480");
-        property_get(prop480i_w,prop_value_w,"720");
-        property_get(prop480i_x,prop_value_x,"0");
-        property_get(prop480i_y,prop_value_y,"0");
+        strcpy(prop_value_h,"480");
+        strcpy(prop_value_w,"720");
+        strcpy(prop_value_x,"0");
+        strcpy(prop_value_y,"0");
         break;
     default :
         break;
