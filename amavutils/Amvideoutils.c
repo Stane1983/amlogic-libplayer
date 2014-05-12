@@ -139,52 +139,52 @@ int get_device_win(OSD_DISP_MODE dismod, int *x, int *y, int *w, int *h)
     switch(dismod)
     {
     case OSD_DISP_1080P:
-        strcpy(prop_value_h,"1080");
-        strcpy(prop_value_w,"1920");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "1080"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "1920"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     case OSD_DISP_1080I:
-        strcpy(prop_value_h,"1080");
-        strcpy(prop_value_w,"1920");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "1080"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "1920"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     case OSD_DISP_LVDS1080P:			
-        strcpy(prop_value_h,"1080");
-        strcpy(prop_value_w,"1920");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "1080"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "1920"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     case OSD_DISP_720P:
-        strcpy(prop_value_h,"720");
-        strcpy(prop_value_w,"1280");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "720"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "1280"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     case OSD_DISP_576P:
-        strcpy(prop_value_h,"576");
-        strcpy(prop_value_w,"720");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "576"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "720"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     case OSD_DISP_576I:
-        strcpy(prop_value_h,"576");
-        strcpy(prop_value_w,"720");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "576"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "720"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     case OSD_DISP_480P:
-        strcpy(prop_value_h,"480");
-        strcpy(prop_value_w,"720");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "480"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "720"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     case OSD_DISP_480I:
-        strcpy(prop_value_h,"480");
-        strcpy(prop_value_w,"720");
-        strcpy(prop_value_x,"0");
-        strcpy(prop_value_y,"0");
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_height", prop_value_h, sizeof(prop_value_h)) != 0) { strcpy(prop_value_h, "480"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_width", prop_value_w, sizeof(prop_value_w)) != 0) { strcpy(prop_value_w, "720"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_x", prop_value_x, sizeof(prop_value_x)) != 0) { strcpy(prop_value_x, "0"); }
+		if (amsysfs_get_sysfs_str("/root/.xbmc/temp/window_y", prop_value_y, sizeof(prop_value_y)) != 0) { strcpy(prop_value_y, "0"); }
         break;
     default :
         break;
