@@ -38,14 +38,6 @@ INCLUDE=${SRCTREE}/include/
 CFLAGS=-O2 -g  -I$(SRC)/include  -I${SRCTREE}/audio_ctl -I${SRCTREE}/codec -I${SRCTREE}/../amadec/include -fPIC
 CFLAGS+=-mfpu=neon -mtune=cortex-a9 -march=armv7-a
 
-FLOAT=softfp
-
-ifdef BR2_ARM_EABIHF
-FLOAT = hard
-endif
-
-CFLAGS+=-mfloat-abi=$(FLOAT)
-
 target_all=  $(TARGET)$(LIB_VERSION)$(LIB_SUB_VERSION)
 all:$(target_all)
 

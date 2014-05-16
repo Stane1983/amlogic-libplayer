@@ -43,14 +43,6 @@ CFLAGS+= -I${SRCTREE}/../amavutils/include -I${SRCTREE}/../amffmpeg -I${SRCTREE}
 CFLAGS+= -fPIC -g
 CFLAGS+=-mfpu=neon -mtune=cortex-a9 -march=armv7-a
 
-FLOAT=softfp
-
-ifdef BR2_ARM_EABIHF
-FLOAT = hard
-endif
-
-CFLAGS+=-mfloat-abi=$(FLOAT)
-
 target_all=  $(TARGET)
 
 
