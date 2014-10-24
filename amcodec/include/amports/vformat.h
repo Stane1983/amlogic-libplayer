@@ -40,6 +40,7 @@ typedef enum {
     VIDEO_DEC_FORMAT_MPEG4_4,
     VIDEO_DEC_FORMAT_MPEG4_5,
     VIDEO_DEC_FORMAT_H264,
+    VIDEO_DEC_FORMAT_HEVC,
     VIDEO_DEC_FORMAT_MJPEG,
     VIDEO_DEC_FORMAT_MP4,
     VIDEO_DEC_FORMAT_H263,
@@ -66,6 +67,7 @@ typedef enum {
     VFORMAT_SW,
     VFORMAT_H264MVC,
     VFORMAT_H264_4K2K,
+    VFORMAT_HEVC,
     VFORMAT_UNSUPPORT,
     VFORMAT_MAX
 } vformat_t;
@@ -87,7 +89,7 @@ typedef enum {
 #define CODEC_TAG_MP43      (0x3334504d)
 #define CODEC_TAG_M4S2      (0x3253344d)
 #define CODEC_TAG_DIV4      (0x34564944)
-#define CODEC_TAG_divx       (0x78766964)
+#define CODEC_TAG_divx      (0x78766964)
 #define CODEC_TAG_DIVX      (0x58564944)
 #define CODEC_TAG_DIV5      (0x35564944)
 #define CODEC_TAG_3IV2      (0x32564933)
@@ -101,6 +103,7 @@ typedef enum {
 #define CODEC_TAG_mp4v      (0x7634706d)
 #define CODEC_TAG_AVC1      (0x31435641)
 #define CODEC_TAG_avc1      (0x31637661)
+#define CODEC_TAG_hvc1      (0x31637668)
 #define CODEC_TAG_H264      (0x34363248)
 #define CODEC_TAG_h264      (0x34363268)
 #define CODEC_TAG_H263      (0x33363248)

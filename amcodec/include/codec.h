@@ -79,6 +79,7 @@ int codec_audio_set_audioinfo(codec_para_t *p);
 int codec_get_apts(codec_para_t *pcodec);
 int codec_get_vpts(codec_para_t *pcodec);
 int codec_get_pcrscr(codec_para_t *pcodec);
+unsigned int codec_get_scrstate(codec_para_t *pcodec, unsigned long *time);
 int codec_set_pcrscr(codec_para_t *pcodec, int val);
 int codec_set_syncenable(codec_para_t *pcodec, int enable);
 int codec_set_sync_audio_discont(codec_para_t *pcodec, int discontinue);
@@ -116,5 +117,10 @@ int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode);
 
 int codec_get_last_checkout_apts(codec_para_t* pcodec, unsigned long *apts);
 int codec_get_last_checkin_apts(codec_para_t* pcodec, unsigned long *apts);
-int codec_set_drmmode(codec_para_t *pcodec);
+/*add for gstreamer fast/slow forward*/
+int codec_set_video_playrate(codec_para_t* pcodec, int rate);
+
+int dummy_codec_set_mute(int mute);
+int dummy_codec_set_volume(int vol);
+int dummy_codec_get_volume(int *vol);
 #endif

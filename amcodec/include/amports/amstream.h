@@ -127,6 +127,7 @@
 #define AMSTREAM_IOC_GET_LAST_CHECKOUT_APTS  _IOR(AMSTREAM_IOC_MAGIC, 0xab, unsigned long)
 #define AMSTREAM_IOC_GET_LAST_CHECKOUT_VPTS  _IOR(AMSTREAM_IOC_MAGIC, 0xac, unsigned long)
 
+#define AMSTREAM_IOC_SET_PLAYRATE    _IOW(AMSTREAM_IOC_MAGIC, 0xb0, unsigned long)
 
 #define AMAUDIO_IOC_MAGIC  'A'
 #define AMAUDIO_IOC_SET_RESAMPLE_ENA        _IOW(AMAUDIO_IOC_MAGIC, 0x19, unsigned long)
@@ -136,6 +137,7 @@
 #define AMAUDIO_IOC_SET_RESAMPLE_DELTA      _IOW(AMAUDIO_IOC_MAGIC, 0x1d, unsigned long)
 
 #define AMSTREAM_IOC_SET_DRMMODE _IOW(AMSTREAM_IOC_MAGIC, 0x91, unsigned long)
+#define AMSTREAM_IOC_GET_SCR_STATE _IOR(AMSTREAM_IOC_MAGIC, 0x92, unsigned long)
 
 struct buf_status {
     int size;

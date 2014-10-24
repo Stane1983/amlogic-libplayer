@@ -924,6 +924,10 @@ typedef struct AVFormatContext {
     /* added by Z.C for DRM content */
     int drmcontent;
 	int skip_extradata;
+
+    // insert vps/sps/pps before stream
+    int ts_hevc_csd_valid;
+    uint8_t ts_hevc_csd_packet[188];
 } AVFormatContext;
 
 typedef struct AVPacketList {

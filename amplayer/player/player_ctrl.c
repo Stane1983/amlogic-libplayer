@@ -1540,7 +1540,10 @@ static char* player_vformat2str(vformat_t value)
             
         case VFORMAT_H264:
             return "VFORMAT_H264";
-            
+
+        case VFORMAT_HEVC:
+            return "VFORMAT_HEVC";
+
         case VFORMAT_MJPEG:
             return "VFORMAT_MJPEG";
             

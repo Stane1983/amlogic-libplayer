@@ -210,6 +210,9 @@ enum CodecID {
     /* H264 MVC type */
     CODEC_ID_H264MVC,
 
+    /* HEVC/H.265 type */
+    CODEC_ID_HEVC,
+
     /* various PCM "codecs" */
     CODEC_ID_PCM_S16LE= 0x10000,
     CODEC_ID_PCM_S16BE,
@@ -2938,6 +2941,10 @@ typedef struct AVCodecContext {
      int mpegps_video_idprobed;
 	/*for some special asf files */
 	 int durcount;
+    // need filter 10bit for hevc
+    int bit_depth;
+    // need filter long term ref pic for hevc
+    int long_term_ref_pic;
 } AVCodecContext;
 
 /**

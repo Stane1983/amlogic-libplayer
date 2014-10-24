@@ -51,6 +51,7 @@ static const media_type media_array[] = {
     {"dts", DTS_FILE, STREAM_AUDIO},
     {"flac", FLAC_FILE, STREAM_AUDIO},
     {"h264", H264_FILE, STREAM_VIDEO},
+    {"hevc", HEVC_FILE, STREAM_VIDEO},
     {"cavs", AVS_FILE, STREAM_VIDEO},
     {"mpegvideo", M2V_FILE, STREAM_VIDEO},
     {"p2p", P2P_FILE, STREAM_ES},
@@ -207,6 +208,10 @@ vformat_t video_type_convert(enum CodecID id)
         format = VFORMAT_H264MVC;
         break;
 
+    case CODEC_ID_HEVC:
+        format = VFORMAT_HEVC;
+        break;
+
     case CODEC_ID_MJPEG:
         format = VFORMAT_MJPEG;
         break;
@@ -317,6 +322,18 @@ vdec_type_t video_codec_type_convert(unsigned int id)
     case CODEC_TAG_h264:
         log_print("VIDEO_TYPE_H264\n");
         dec_type = VIDEO_DEC_FORMAT_H264;
+        break;
+
+    case CODEC_TAG_HEVC:
+    case CODEC_TAG_hev1:
+    case CODEC_TAG_hvc1:
+        log_print("VIDEO_TYPE_HEVC\n");
+        dec_type = VIDEO_DEC_FORMAT_HEVC;
+        break;
+
+    case CODEC_ID_HEVC:
+        log_print("[video_codec_type_convert]VIDEO_DEC_FORMAT_HEVC(0x%x)\n", id);
+        dec_type = VIDEO_DEC_FORMAT_HEVC;
         break;
 
     case CODEC_ID_RV30:
@@ -2083,7 +2100,14 @@ int set_header_info(play_para_t *para)
                         return ret;
                     }
                 }
-
+            } else if(para->vstream_info.video_format == VFORMAT_HEVC
+                 && para->file_type != STREAM_FILE) {
+                if (!(para->p_pkt->avpkt->flags & AV_PKT_FLAG_ISDECRYPTINFO)){
+                    ret = hevc_update_frame_header(pkt);
+                    if (ret != PLAYER_SUCCESS) {
+                        return ret;
+                    }
+                }
             } else if (para->vstream_info.video_format == VFORMAT_MPEG4) {
                 if (para->vstream_info.video_codec_type == VIDEO_DEC_FORMAT_MPEG4_3) {
                     return divx3_prefix(pkt);
