@@ -776,23 +776,9 @@ static char *transfer_mms_protocol(AVFormatContext *s, const char *filename,cons
 
 
 //add this api for open third-parts libmms supports,by peter,20121121
-#include "ammodule.h"
+//#include "ammodule.h"
 static int is_use_external_module(const char* mod_name){
-    int ret = -1;      
-    const char* ex_mod = "media.libplayer.modules";
-    char value[CONFIG_VALUE_MAX];
-    ret = am_getconfig(ex_mod, value,NULL);
-    if(ret<1){
-        return 0;
-    }
-    ret = ammodule_match_check(value,mod_name);
-  
-    if(ret>0){
-        return 1;
-    }else{
-        return 0;
-    }
-
+	return 0;
 }
 /* open input file and probe the format if necessary */
 static int init_input(AVFormatContext *s, const char *filename,const char * headers)
