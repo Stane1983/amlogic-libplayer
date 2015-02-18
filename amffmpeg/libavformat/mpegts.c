@@ -582,6 +582,7 @@ static const StreamType ISO_types[] = {
     { 0x10, AVMEDIA_TYPE_VIDEO,      CODEC_ID_MPEG4 },
     { 0x11, AVMEDIA_TYPE_AUDIO,   CODEC_ID_AAC_LATM }, /* LATM syntax */
     { 0x1b, AVMEDIA_TYPE_VIDEO,       CODEC_ID_H264 },
+    { 0x24, AVMEDIA_TYPE_VIDEO,       CODEC_ID_HEVC },     /* maybe need to change */
     { 0xd1, AVMEDIA_TYPE_VIDEO,      CODEC_ID_DIRAC },
     { 0xea, AVMEDIA_TYPE_VIDEO,        CODEC_ID_VC1 },
     { 0x42, AVMEDIA_TYPE_VIDEO,        CODEC_ID_CAVS},
@@ -610,6 +611,8 @@ static const StreamType REGD_types[] = {
     { MKTAG('d','r','a','c'), AVMEDIA_TYPE_VIDEO, CODEC_ID_DIRAC },
     { MKTAG('A','C','-','3'), AVMEDIA_TYPE_AUDIO,   CODEC_ID_AC3 },
     { MKTAG('B','S','S','D'), AVMEDIA_TYPE_AUDIO, CODEC_ID_S302M },
+    { MKTAG('H','E','V','C'), AVMEDIA_TYPE_VIDEO, CODEC_ID_HEVC },
+    { MKTAG('D','T','S','H'), AVMEDIA_TYPE_AUDIO,   CODEC_ID_DTS },
     { 0 },
 };
 

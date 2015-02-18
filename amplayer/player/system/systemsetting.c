@@ -48,6 +48,7 @@ float PlayerGetSettingfloat(const char* path)
 #define FILTER_VFMT_AVS		(1 << 7)
 #define FILTER_VFMT_SW		(1 << 8)
 #define FILTER_VFMT_HMVC    (1 << 9)
+#define FILTER_VFMT_HEVC	(1 << 10)
 
 int PlayerGetVFilterFormat(play_para_t*am_p)
 {
@@ -74,6 +75,9 @@ int PlayerGetVFilterFormat(play_para_t*am_p)
 		if ((pCodecCtx->codec_id == CODEC_ID_H264) && (!am_p->vdec_profile.h264_para.exist)) {
 			filter_fmt |= FILTER_VFMT_H264;
 		}
+		if ((pCodecCtx->codec_id == CODEC_ID_HEVC) && (!am_p->vdec_profile.hevc_para.exist)) {
+			filter_fmt |= FILTER_VFMT_HEVC;
+		}
 	}
 	
     if (GetSystemSettingString("media.amplayer.disable-vcodecs", value, NULL) > 0) {
@@ -86,6 +90,9 @@ int PlayerGetVFilterFormat(play_para_t*am_p)
 		} 
 		if (strstr(value,"H264") != NULL || strstr(value,"h264") != NULL) {
 			filter_fmt |= FILTER_VFMT_H264;
+		}
+		if (strstr(value,"HEVC") != NULL || strstr(value,"hevc") != NULL) {
+			filter_fmt |= FILTER_VFMT_HEVC;
 		} 
 		if (strstr(value,"MJPEG") != NULL || strstr(value,"mjpeg") != NULL) {
 			filter_fmt |= FILTER_VFMT_MJPEG;

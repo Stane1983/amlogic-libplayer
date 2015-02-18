@@ -200,34 +200,3 @@ void av_dynarray_add(void *tab_ptr, int *nb_ptr, void *elem)
     tab[nb++] = (intptr_t)elem;
     *nb_ptr = nb;
 }
-
-void *av_realloc_f(void *ptr, size_t nelem, size_t elsize)
-{
-    size_t size;
-    void *r;
-
-    if (av_size_mult(elsize, nelem, &size)) {
-        av_free(ptr);
-        return NULL;
-    }
-    r = av_realloc(ptr, size);
-    if (!r && size)
-        av_free(ptr);
-    return r;
-}
-
-void *av_realloc_array(void *ptr, size_t nmemb, size_t size)
-{
-    if (!size || nmemb >= INT_MAX / size)
-        return NULL;
-    return av_realloc(ptr, nmemb * size);
-}
-
-int av_reallocp_array(void *ptr, size_t nmemb, size_t size)
-{
-    void **ptrptr = ptr;
-    *ptrptr = av_realloc_f(*ptrptr, nmemb, size);
-    if (!*ptrptr && nmemb && size)
-        return AVERROR(ENOMEM);
-    return 0;
-}

@@ -69,6 +69,7 @@ const CodecTags ff_mkv_codec_tags[]={
     {"V_MPEG4/ISO/AP"   , CODEC_ID_MPEG4},
     {"V_MPEG4/ISO/SP"   , CODEC_ID_MPEG4},
     {"V_MPEG4/ISO/AVC"  , CODEC_ID_H264},
+    {"V_MPEGH/ISO/HEVC" , CODEC_ID_HEVC},
     {"V_MPEG4/MS/V3"    , CODEC_ID_MSMPEG4V3},
     {"V_REAL/RV10"      , CODEC_ID_RV10},
     {"V_REAL/RV20"      , CODEC_ID_RV20},

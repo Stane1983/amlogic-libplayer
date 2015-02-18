@@ -324,7 +324,7 @@ int get_decoder_status(void *p,struct adec_status *adec)
         case AUDIO_ARM_DECODER:
             memset(&AudioArmDecoder,0,sizeof(audio_decoder_operations_t));
             audec->adec_ops=&AudioArmDecoder;
-            find_audio_lib(audec);
+            if(find_audio_lib(audec)!=0) return -1;
             audec->adec_ops->priv_data=audec;
             break;
         case AUDIO_FFMPEG_DECODER:

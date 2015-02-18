@@ -147,7 +147,7 @@ typedef struct {
 #ifdef __GNUC__
 void av_log(void *avcl, int level, const char *fmt, ...) __attribute__ ((__format__ (__printf__, 3, 4)));
 #else
-void av_log(void *avcl, int level, const char *fmt, ...);
+void av_log(void *avcl, int level, const char *fmt, ...) 
 #endif
 
 void av_vlog(void *avcl, int level, const char *fmt, va_list);

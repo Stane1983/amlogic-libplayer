@@ -151,6 +151,7 @@ static void (*av_log_callback)(void*, int, const char*, va_list) = av_log_defaul
 
 void av_log(void* avcl, int level, const char *fmt, ...)
 {
+#ifndef ANDROID
     AVClass* avc= avcl ? *(AVClass**)avcl : NULL;
     va_list vl;
     va_start(vl, fmt);
@@ -158,6 +159,20 @@ void av_log(void* avcl, int level, const char *fmt, ...)
         level += *(int*)(((uint8_t*)avcl) + avc->log_level_offset_offset);
     av_vlog(avcl, level, fmt, vl);
     va_end(vl);
+
+	#else
+#undef printf
+char buffer[128];
+    va_list vl;
+    va_start(vl, fmt);
+    vsprintf(buffer, fmt, vl);
+    va_end(vl);
+    if(level <= AV_LOG_DEBUG){
+		#undef printf
+        printf("%s", buffer);
+    	}
+
+#endif
 }
 
 void av_vlog(void* avcl, int level, const char *fmt, va_list vl)

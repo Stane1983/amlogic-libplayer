@@ -26,6 +26,7 @@
 #include "internal.h"
 #include "libavcodec/internal.h"
 #include "libavcodec/raw.h"
+#include "libavcodec/hevc.h"
 #include "libavutil/opt.h"
 #include "libavutil/dict.h"
 #include "libavutil/pixdesc.h"
@@ -388,6 +389,7 @@ static int set_codec_from_probe_data(AVFormatContext *s, AVStream *st, AVProbeDa
         { "dts"      , CODEC_ID_DTS       , AVMEDIA_TYPE_AUDIO },
         { "eac3"     , CODEC_ID_EAC3      , AVMEDIA_TYPE_AUDIO },
         { "h264"     , CODEC_ID_H264      , AVMEDIA_TYPE_VIDEO },
+        { "hevc"     , CODEC_ID_HEVC      , AVMEDIA_TYPE_VIDEO },
         { "m4v"      , CODEC_ID_MPEG4     , AVMEDIA_TYPE_VIDEO },
         { "mp3"      , CODEC_ID_MP3       , AVMEDIA_TYPE_AUDIO },
 		{ "mp2"      , CODEC_ID_MP2       , AVMEDIA_TYPE_AUDIO },
@@ -704,7 +706,8 @@ int av_open_input_file_header(AVFormatContext **ic_ptr, const char *filename,
 {
     int err;
     AVDictionary *opts = convert_format_parameters(ap);
-
+    av_log(NULL,AV_LOG_ERROR,"av_open_input_file_header\n");
+	
     if (!ap || !ap->prealloced_context)
         *ic_ptr = NULL;
 
@@ -771,8 +774,25 @@ static char *transfer_mms_protocol(AVFormatContext *s, const char *filename,cons
     }
 }
 
+
+//add this api for open third-parts libmms supports,by peter,20121121
+#include "ammodule.h"
 static int is_use_external_module(const char* mod_name){
-	return 0;
+    int ret = -1;      
+    const char* ex_mod = "media.libplayer.modules";
+    char value[CONFIG_VALUE_MAX];
+    ret = am_getconfig(ex_mod, value,NULL);
+    if(ret<1){
+        return 0;
+    }
+    ret = ammodule_match_check(value,mod_name);
+  
+    if(ret>0){
+        return 1;
+    }else{
+        return 0;
+    }
+
 }
 /* open input file and probe the format if necessary */
 static int init_input(AVFormatContext *s, const char *filename,const char * headers)
@@ -1211,6 +1231,7 @@ static void compute_pkt_fields(AVFormatContext *s, AVStream *st,
 {
     int num, den, presentation_delayed, delay, i;
     int64_t offset;
+    int codec_id_cond = st->codec->codec_id != CODEC_ID_H264 && st->codec->codec_id != CODEC_ID_HEVC;
 
     if (s->flags & AVFMT_FLAG_NOFILLIN)
         return;
@@ -1218,7 +1239,7 @@ static void compute_pkt_fields(AVFormatContext *s, AVStream *st,
     if((s->flags & AVFMT_FLAG_IGNDTS) && pkt->pts != AV_NOPTS_VALUE)
         pkt->dts= AV_NOPTS_VALUE;
 
-    if (st->codec->codec_id != CODEC_ID_H264 && pc && pc->pict_type == AV_PICTURE_TYPE_B)
+    if (codec_id_cond && pc && pc->pict_type == AV_PICTURE_TYPE_B)
         //FIXME Set low_delay = 0 when has_b_frames = 1
         st->codec->has_b_frames = 1;
 
@@ -1297,7 +1318,7 @@ static void compute_pkt_fields(AVFormatContext *s, AVStream *st,
 //    av_log(NULL, AV_LOG_DEBUG, "IN delayed:%d pts:%"PRId64", dts:%"PRId64" cur_dts:%"PRId64" st:%d pc:%p\n", presentation_delayed, pkt->pts, pkt->dts, st->cur_dts, pkt->stream_index, pc);
     /* interpolate PTS and DTS if they are not present */
     //We skip H264 currently because delay and has_b_frames are not reliably set
-    if((delay==0 || (delay==1 && pc)) && st->codec->codec_id != CODEC_ID_H264){
+    if((delay==0 || (delay==1 && pc)) && codec_id_cond){
         if (presentation_delayed) {
             /* DTS = decompression timestamp */
             /* PTS = presentation timestamp */
@@ -1345,7 +1366,7 @@ static void compute_pkt_fields(AVFormatContext *s, AVStream *st,
             FFSWAP(int64_t, st->pts_buffer[i], st->pts_buffer[i+1]);
         if(pkt->dts == AV_NOPTS_VALUE)
             pkt->dts= st->pts_buffer[0];
-        if(st->codec->codec_id == CODEC_ID_H264){ //we skiped it above so we try here
+        if(!codec_id_cond){ //we skiped it above so we try here
             //update_initial_timestamps(s, pkt->stream_index, pkt->dts, pkt->pts); // this should happen on the first packet
             update_initial_timestamps(s, pkt->stream_index, pkt->dts, pkt->dts);
         }
@@ -3060,7 +3081,7 @@ static int has_codec_parameters_ex(AVCodecContext *enc,int fastmode)
 
 static int has_decode_delay_been_guessed(AVStream *st)
 {
-    return st->codec->codec_id != CODEC_ID_H264 ||
+    return (st->codec->codec_id != CODEC_ID_H264 && st->codec->codec_id != CODEC_ID_HEVC) ||
         st->codec_info_nb_frames >= 6 + st->codec->has_b_frames;
 }
 

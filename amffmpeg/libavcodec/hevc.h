@@ -949,6 +949,9 @@ typedef struct hevc_info{
 	size_t sps_size;
 	int mwidth;
 	int mheight;
+	int bit_depth;
+	int long_term_ref_pics_present_flag;
+	int num_long_term_ref_pics_sps;
 };
 
 int check_size_in_buffer(unsigned char *p, int len);

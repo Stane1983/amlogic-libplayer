@@ -245,7 +245,7 @@ int audiodsp_start(aml_audio_dec_t *audec)
         do{
             ret = ioctl(dsp_ops->dsp_file_fd, AUDIODSP_WAIT_FORMAT, 0);
 	    if(ret!=0 && !audec->need_stop){
-                err_count++;			
+                err_count++;		
                 usleep(1000*20);
                 if (err_count > PARSER_WAIT_MAX){ 
 	             ioctl(dsp_ops->dsp_file_fd, AUDIODSP_STOP, 0);//audiodsp_start failed,should stop audiodsp 								
@@ -255,7 +255,7 @@ int audiodsp_start(aml_audio_dec_t *audec)
 	    }
         }while(!audec->need_stop && (ret!=0));
     }
-
+	
     if (ret != 0) {
 	 ioctl(dsp_ops->dsp_file_fd, AUDIODSP_STOP, 0);//audiodsp_start failed,should stop audiodsp 					
         return -4;
@@ -442,8 +442,6 @@ int audiodsp_automute_off(dsp_operations_t *dsp_ops)
 
     return ret;
 }
-
-
 int audiodsp_get_pcm_level(dsp_operations_t* dsp_ops)
 {
   int val = 0;

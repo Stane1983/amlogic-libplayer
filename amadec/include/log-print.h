@@ -19,7 +19,12 @@
 #define  LOG_TAG    "amadec"
 #define adec_print(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
 #else
-#define adec_print(f,s...) fprintf(stderr,f,##s)
+#define LOG_DEFAULT  0
+char *level;
+#define adec_print(f,s...) do{level=getenv("LOG_LEVEL"); \
+	                                   if(level&&atoi(level)>LOG_DEFAULT) \ 
+						   fprintf(stderr,f,##s);\
+						   else; }while(0);
 #endif
 
 

@@ -1785,6 +1785,9 @@ int HEVC_decode_SPS(const uint8_t *buf,int size,struct hevc_info*info)
 		    HEVCSPS *sps = (HEVCSPS*)s.sps_list[0]->data;
 		    info->mwidth=sps->width;
 		    info->mheight=sps->height;
+		    info->bit_depth=sps->bit_depth;
+		    info->long_term_ref_pics_present_flag=sps->long_term_ref_pics_present_flag;
+		    info->num_long_term_ref_pics_sps=sps->num_long_term_ref_pics_sps;
 	       }else{
 		    return -1;
 	       }

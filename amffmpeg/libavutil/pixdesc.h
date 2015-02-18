@@ -151,12 +151,6 @@ enum PixelFormat av_get_pix_fmt(const char *name);
 const char *av_get_pix_fmt_name(enum PixelFormat pix_fmt);
 
 /**
- * @return a pixel format descriptor for provided pixel format or NULL if
- * this pixel format is unknown.
- */
-const AVPixFmtDescriptor *av_pix_fmt_desc_get(enum PixelFormat pix_fmt);
-
-/**
  * Print in buf the string corresponding to the pixel format with
  * number pix_fmt, or an header if pix_fmt is negative.
  *

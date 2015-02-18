@@ -16,13 +16,15 @@
 #include <sys/soundcard.h>
 //#include <config.h>
 #include <alsa/asoundlib.h>
-
+#include <alsa/pcm.h>
 #include <audio-dec.h>
 #include <adec-pts-mgt.h>
 #include <log-print.h>
 #include <alsa-out.h>
+#include "alsactl_parser.h"
 
-
+#define   PERIOD_SIZE  1024
+#define   PERIOD_NUM    4
 #define USE_INTERPOLATION
 
 static snd_pcm_sframes_t (*readi_func)(snd_pcm_t *handle, void *buffer, snd_pcm_uframes_t size);
@@ -31,8 +33,8 @@ static snd_pcm_sframes_t (*readn_func)(snd_pcm_t *handle, void **bufs, snd_pcm_u
 static snd_pcm_sframes_t (*writen_func)(snd_pcm_t *handle, void **bufs, snd_pcm_uframes_t size);
 
 
-static int fragcount = 16;
-static snd_pcm_uframes_t chunk_size = 1024;
+static int fragcount = PERIOD_NUM;
+static snd_pcm_uframes_t chunk_size = PERIOD_SIZE;
 static char output_buffer[64 * 1024];
 static unsigned char decode_buffer[OUTPUT_BUFFER_SIZE + 64];
 
@@ -180,18 +182,25 @@ static int set_params(alsa_param_t *alsa_params)
     //bits_per_frame = bits_per_sample * hwparams.realchanl;
     alsa_params->bits_per_frame = alsa_params->bits_per_sample * alsa_params->channelcount;
 
+    bufsize = 	PERIOD_NUM*PERIOD_SIZE;
+    err = snd_pcm_hw_params_set_buffer_size_near(alsa_params->handle, hwparams,&bufsize);
+    if (err < 0) {
+        adec_print("Unable to set  buffer  size \n");
+        return err;
+    }
+	
     err = snd_pcm_hw_params_set_period_size_near(alsa_params->handle, hwparams, &chunk_size, NULL);
     if (err < 0) {
         adec_print("Unable to set period size \n");
         return err;
     }
-
-    //err = snd_pcm_hw_params_set_periods_near(handle, hwparams, &fragcount, NULL);
-    //if (err < 0) {
-    //  adec_print("Unable to set periods \n");
-    //  return err;
-    //}
-
+#if 0	
+    err = snd_pcm_hw_params_set_periods_near(alsa_params->handle, hwparams, &fragcount, NULL);
+    if (err < 0) {
+      adec_print("Unable to set periods \n");
+      return err;
+    }
+#endif	
     err = snd_pcm_hw_params(alsa_params->handle, hwparams);
     if (err < 0) {
         adec_print("Unable to install hw params:");
@@ -203,6 +212,7 @@ static int set_params(alsa_param_t *alsa_params)
         adec_print("Unable to get buffersize \n");
         return err;
     }
+	printf("alsa buffer frame size %d \n",bufsize);
     alsa_params->buffer_size = bufsize * alsa_params->bits_per_frame / 8;
 
 #if 1
@@ -274,7 +284,7 @@ static size_t pcm_write(alsa_param_t * alsa_param, u_char * data, size_t count)
         }
 
         if (r < 0) {
-            printf("xun in\n");
+            //printf("xun in\n");
             if ((r = snd_pcm_prepare(alsa_param->handle)) < 0) {
                 return 0;
             }
@@ -521,7 +531,7 @@ int alsa_init(struct aml_audio_dec* audec)
         return -1;
     }
     memset(alsa_param, 0, sizeof(alsa_param_t));
-
+    
     if (audec->samplerate >= (88200 + 96000) / 2) {
         alsa_param->flag = 1;
         alsa_param->oversample = -1;
@@ -624,6 +634,7 @@ int alsa_init(struct aml_audio_dec* audec)
 
     alsa_param->playback_tid = tid;
 
+   alsactl_parser();
     return 0;
 }
 
@@ -706,7 +717,7 @@ int alsa_stop(struct aml_audio_dec* audec)
     alsa_param_t *alsa_params;
 
     alsa_params = (alsa_param_t *)audec->aout_ops.private_data;
-
+    alsa_params->pause_flag = 0; //we should clear pause flag ,as we can stop from paused state
     alsa_params->stop_flag = 1;
     alsa_params->wait_flag = 0;
     pthread_cond_signal(&alsa_params->playback_cond);
@@ -759,16 +770,91 @@ unsigned long alsa_latency(struct aml_audio_dec* audec)
 }
 
 /**
+* alsa dumy codec controls interface
+*/
+int dummy_alsa_control(char * id_string , long vol, int rw, long * value){
+    int err;
+    snd_hctl_t *hctl;
+    snd_ctl_elem_id_t *id;
+    snd_hctl_elem_t *elem;
+    snd_ctl_elem_value_t *control;
+    snd_ctl_elem_info_t *info;
+    snd_ctl_elem_type_t type;
+    unsigned int idx = 0, count;
+    long tmp, min, max;
+
+    if ((err = snd_hctl_open(&hctl, PCM_DEVICE_DEFAULT, 0)) < 0) { 
+        printf("Control %s open error: %s\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+        return err;
+    }
+    if (err = snd_hctl_load(hctl)< 0) {
+        printf("Control %s open error: %s\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+        return err;
+    }
+    snd_ctl_elem_id_alloca(&id);
+    snd_ctl_elem_id_set_interface(id, SND_CTL_ELEM_IFACE_MIXER);
+    snd_ctl_elem_id_set_name(id, id_string);
+    elem = snd_hctl_find_elem(hctl, id);
+    snd_ctl_elem_value_alloca(&control);
+    snd_ctl_elem_value_set_id(control, id);
+    snd_ctl_elem_info_alloca(&info);
+    if ((err = snd_hctl_elem_info(elem, info)) < 0) {
+        printf("Control %s snd_hctl_elem_info error: %s\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+		    return err;
+    }    
+    count = snd_ctl_elem_info_get_count(info);
+    type = snd_ctl_elem_info_get_type(info);
+    
+    for (idx = 0; idx < count; idx++) {
+        switch (type) {
+            case SND_CTL_ELEM_TYPE_BOOLEAN:
+                if(rw){
+                    tmp = 0;
+                    if (vol >= 1) {
+                        tmp = 1;
+                    }
+                    snd_ctl_elem_value_set_boolean(control, idx, tmp);
+                    err = snd_hctl_elem_write(elem, control);
+                }else             	
+		    *value = snd_ctl_elem_value_get_boolean(control, idx);
+		    break;
+            case SND_CTL_ELEM_TYPE_INTEGER:
+                if(rw){
+		    min = snd_ctl_elem_info_get_min(info);
+		    max = snd_ctl_elem_info_get_max(info);
+                    if ((vol >= min) && (vol <= max))
+                        tmp = vol;
+		    else if (vol < min)
+                        tmp = min;
+                    else if (vol > max)
+                        tmp = max;
+                    snd_ctl_elem_value_set_integer(control, idx, tmp);
+                    err = snd_hctl_elem_write(elem, control);
+                }else             	
+	            *value = snd_ctl_elem_value_get_integer(control, idx);
+		    break;
+            default:
+                printf("?");
+	        break;
+        }
+        if (err < 0){
+            printf ("control%s access error=%s,close control device\n", PCM_DEVICE_DEFAULT, snd_strerror(err));
+            snd_hctl_close(hctl);
+            return err;
+        }
+    }
+    
+    return 0;
+}
+/**
  * \brief mute output
  * \param audec pointer to audec
  * \param en  1 = mute, 0 = unmute
  * \return 0 on success otherwise negative error code
  */
 static int alsa_mute(struct aml_audio_dec* audec, adec_bool_t en){
-       return 0;
+	return 0;
 }
-
-
 /**
  * \brief get output handle
  * \param audec pointer to audec
