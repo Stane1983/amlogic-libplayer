@@ -36,7 +36,6 @@ LDFLAGS=  -O2  -L$(LIB_DIR)  -lm -lc  -shared -Wl,--shared -Wl,-soname,$(TARGET)
 INCLUDE=${SRCTREE}/include/ 
 #CFLAGS=-O0  -gdwarf-2  -g
 CFLAGS=-O2 -g  -I$(SRC)/include  -I${SRCTREE}/audio_ctl -I${SRCTREE}/codec -I${SRCTREE}/../amadec/include -fPIC
-CFLAGS+=-mfpu=neon -mtune=cortex-a9 -march=armv7-a
 
 target_all=  $(TARGET)$(LIB_VERSION)$(LIB_SUB_VERSION)
 all:$(target_all)

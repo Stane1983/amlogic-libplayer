@@ -41,7 +41,6 @@ DIRS  = player/
 
 CFLAGS+= -I${SRCTREE}/../amavutils/include -I${SRCTREE}/../amffmpeg -I${SRCTREE}/../amcodec/include -I${SRCTREE}/../amadec/include
 CFLAGS+= -fPIC -g
-CFLAGS+=-mfpu=neon -mtune=cortex-a9 -march=armv7-a
 
 target_all=  $(TARGET)
 
