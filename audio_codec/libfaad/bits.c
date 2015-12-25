@@ -243,7 +243,7 @@ void faad_initbits_rev(bitfile *ld, void *buffer,
                        uint32_t bits_in_buffer)
 {
     uint32_t tmp;
-    int32_t index;
+    INT32_T index;
 
     ld->buffer_size = bit2byte(bits_in_buffer);
 

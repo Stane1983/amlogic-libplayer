@@ -358,13 +358,13 @@ real_t pow2_fix(real_t val)
     uint32_t errcorr;
     uint32_t index_frac;
     real_t retval;
-    int32_t whole = (val >> REAL_BITS);
+    INT32_T whole = (val >> REAL_BITS);
 
     /* rest = [0..1] */
-    int32_t rest = val - (whole << REAL_BITS);
+    INT32_T rest = val - (whole << REAL_BITS);
 
     /* index into pow2_tab */
-    int32_t index = rest >> (REAL_BITS-TABLE_BITS);
+    INT32_T index = rest >> (REAL_BITS-TABLE_BITS);
 
 
     if (val == 0)
@@ -395,19 +395,19 @@ real_t pow2_fix(real_t val)
     return retval;
 }
 
-int32_t pow2_int(real_t val)
+INT32_T pow2_int(real_t val)
 {
     uint32_t x1, x2;
     uint32_t errcorr;
     uint32_t index_frac;
     real_t retval;
-    int32_t whole = (val >> REAL_BITS);
+    INT32_T whole = (val >> REAL_BITS);
 
     /* rest = [0..1] */
-    int32_t rest = val - (whole << REAL_BITS);
+    INT32_T rest = val - (whole << REAL_BITS);
 
     /* index into pow2_tab */
-    int32_t index = rest >> (REAL_BITS-TABLE_BITS);
+    INT32_T index = rest >> (REAL_BITS-TABLE_BITS);
 
 
     if (val == 0)
@@ -432,11 +432,11 @@ int32_t pow2_int(real_t val)
 }
 
 /* ld(x) = ld(x*y/y) = ld(x/y) + ld(y), with y=2^N and [1 <= (x/y) < 2] */
-int32_t log2_int(uint32_t val)
+INT32_T log2_int(uint32_t val)
 {
     uint32_t frac;
     uint32_t whole = (val);
-    int32_t exp = 0;
+    INT32_T exp = 0;
     uint32_t index;
     uint32_t index_frac;
     uint32_t x1, x2;

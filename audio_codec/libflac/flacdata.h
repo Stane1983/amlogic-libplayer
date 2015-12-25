@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVCODEC_FLACDATA_H
-#define AVCODEC_FLACDATA_H
+#ifndef LIBFLAC_FLACDATA_H
+#define LIBFLAC_FLACDATA_H
 
 extern const int ff_flac_sample_rate_table[16];
 

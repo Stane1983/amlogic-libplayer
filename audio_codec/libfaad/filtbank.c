@@ -28,10 +28,12 @@
 ** $Id: filtbank.c,v 1.46 2009/01/26 23:51:15 menno Exp $
 **/
 #include <stdlib.h>
+//#include <string.h>
+#include <memory.h>
 #include "common.h"
 #include "structs.h"
 
-#include <string.h>
+
 #ifdef _WIN32_WCE
 #define assert(x)
 #else

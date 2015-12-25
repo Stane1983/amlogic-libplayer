@@ -482,7 +482,7 @@ static int m3u_format_parser(struct list_mgt *mgt,ByteIOContext *s)
 			if(tmpitem.file)
 			{
 				item->file=av_mallocz(size_file);
-				if(item->file == NULL){
+				if(item->file == NULL){
 					av_free(item);
 					return AVERROR(ENOMEM);
 				}
@@ -661,7 +661,7 @@ static int match_ext(const char *filename, const char *extensions)//get file typ
 static int m3u_probe(ByteIOContext *s,const char *file)
 {
 	if(s)
-	{
+	{
 		char line[1024];
 		if(m3u_format_get_line(s,line,1024)>0)
 		{

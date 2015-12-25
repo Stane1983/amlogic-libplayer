@@ -98,7 +98,7 @@ static INLINE void gen_rand_vector(real_t *spec, int16_t scale_factor, uint16_t 
 
     for (i = 0; i < size; i++)
     {
-        real_t tmp = scale*(real_t)(int32_t)ne_rng(__r1, __r2);
+        real_t tmp = scale*(real_t)(INT32_T)ne_rng(__r1, __r2);
         spec[i] = tmp;
         energy += tmp*tmp;
     }
@@ -112,12 +112,12 @@ static INLINE void gen_rand_vector(real_t *spec, int16_t scale_factor, uint16_t 
 #else
     uint16_t i;
     real_t energy = 0, scale;
-    int32_t exp, frac;
+    INT32_T exp, frac;
 
     for (i = 0; i < size; i++)
     {
         /* this can be replaced by a 16 bit random generator!!!! */
-        real_t tmp = (int32_t)ne_rng(__r1, __r2);
+        real_t tmp = (INT32_T)ne_rng(__r1, __r2);
         if (tmp < 0)
             tmp = -(tmp & ((1<<(REAL_BITS-1))-1));
         else

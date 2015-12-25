@@ -16,13 +16,20 @@
 #include <sys/soundcard.h>
 //#include <config.h>
 #include <alsa/asoundlib.h>
-
+#include <alsa/pcm.h>
 #include <audio-dec.h>
 #include <adec-pts-mgt.h>
 #include <log-print.h>
 #include <alsa-out.h>
+#include "alsactl_parser.h"
+#include "alsa-out-raw.h"
+
+//#define adec_print printf
+#define adec_print
 
 
+#define   PERIOD_SIZE  1024
+#define   PERIOD_NUM    4
 #define USE_INTERPOLATION
 
 static snd_pcm_sframes_t (*readi_func)(snd_pcm_t *handle, void *buffer, snd_pcm_uframes_t size);
@@ -31,10 +38,14 @@ static snd_pcm_sframes_t (*readn_func)(snd_pcm_t *handle, void **bufs, snd_pcm_u
 static snd_pcm_sframes_t (*writen_func)(snd_pcm_t *handle, void **bufs, snd_pcm_uframes_t size);
 
 
-static int fragcount = 16;
-static snd_pcm_uframes_t chunk_size = 1024;
+static int fragcount = PERIOD_NUM;
+static snd_pcm_uframes_t chunk_size = PERIOD_SIZE;
 static char output_buffer[64 * 1024];
 static unsigned char decode_buffer[OUTPUT_BUFFER_SIZE + 64];
+
+static char sound_card_dev[10] = {0};
+
+
 
 #ifdef USE_INTERPOLATION
 static int pass1_history[8][8];
@@ -124,7 +135,7 @@ static int set_params(alsa_param_t *alsa_params)
     //  unsigned int period_time = 0;
     //  unsigned int buffer_time = 0;
     snd_pcm_uframes_t bufsize;
-    int err;
+    int err = 0;
     unsigned int rate;
     snd_pcm_uframes_t start_threshold, stop_threshold;
     snd_pcm_hw_params_alloca(&hwparams);
@@ -180,18 +191,25 @@ static int set_params(alsa_param_t *alsa_params)
     //bits_per_frame = bits_per_sample * hwparams.realchanl;
     alsa_params->bits_per_frame = alsa_params->bits_per_sample * alsa_params->channelcount;
 
+    bufsize = 	PERIOD_NUM*PERIOD_SIZE;
+    err = snd_pcm_hw_params_set_buffer_size_near(alsa_params->handle, hwparams,&bufsize);
+    if (err < 0) {
+        adec_print("Unable to set  buffer  size \n");
+        return err;
+    }
+	
     err = snd_pcm_hw_params_set_period_size_near(alsa_params->handle, hwparams, &chunk_size, NULL);
     if (err < 0) {
         adec_print("Unable to set period size \n");
         return err;
     }
-
-    //err = snd_pcm_hw_params_set_periods_near(handle, hwparams, &fragcount, NULL);
-    //if (err < 0) {
-    //  adec_print("Unable to set periods \n");
-    //  return err;
-    //}
-
+#if 0	
+    err = snd_pcm_hw_params_set_periods_near(alsa_params->handle, hwparams, &fragcount, NULL);
+    if (err < 0) {
+      adec_print("Unable to set periods \n");
+      return err;
+    }
+#endif	
     err = snd_pcm_hw_params(alsa_params->handle, hwparams);
     if (err < 0) {
         adec_print("Unable to install hw params:");
@@ -203,6 +221,7 @@ static int set_params(alsa_param_t *alsa_params)
         adec_print("Unable to get buffersize \n");
         return err;
     }
+    printf("alsa buffer frame size %d \n",bufsize);
     alsa_params->buffer_size = bufsize * alsa_params->bits_per_frame / 8;
 
 #if 1
@@ -274,7 +293,7 @@ static size_t pcm_write(alsa_param_t * alsa_param, u_char * data, size_t count)
         }
 
         if (r < 0) {
-            printf("xun in\n");
+            //printf("xun in\n");
             if ((r = snd_pcm_prepare(alsa_param->handle)) < 0) {
                 return 0;
             }
@@ -510,10 +529,13 @@ int alsa_init(struct aml_audio_dec* audec)
 {
     adec_print("alsa out init");
 
-    int err;
+    int err = 0;
     pthread_t tid;
     alsa_param_t *alsa_param;
     audio_out_operations_t *out_ops = &audec->aout_ops;
+    int sound_card_id = 0;
+    int sound_dev_id = 0;
+    int dgraw = amsysfs_get_sysfs_int("/sys/class/audiodsp/digital_raw");
 
     alsa_param = (alsa_param_t *)malloc(sizeof(alsa_param_t));
     if (!alsa_param) {
@@ -521,7 +543,7 @@ int alsa_init(struct aml_audio_dec* audec)
         return -1;
     }
     memset(alsa_param, 0, sizeof(alsa_param_t));
-
+    
     if (audec->samplerate >= (88200 + 96000) / 2) {
         alsa_param->flag = 1;
         alsa_param->oversample = -1;
@@ -595,10 +617,45 @@ int alsa_init(struct aml_audio_dec* audec)
     memset(pass2_history, 0, 64 * sizeof(int));
 #endif
 
-    err = snd_pcm_open(&alsa_param->handle, PCM_DEVICE_DEFAULT, SND_PCM_STREAM_PLAYBACK, 0);
+    if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw))&& \
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format))){
+
+        sound_card_id = alsa_get_aml_card();
+        if (sound_card_id  < 0) {
+            sound_card_id = 0;
+            adec_print("[%s::%d]--[get aml card fail, use default]\n",__FUNCTION__, __LINE__);
+        }
+        adec_print("[%s::%d]--[alsa_get_aml_card return:%d]\n",__FUNCTION__, __LINE__,sound_card_id);
+
+        sound_dev_id = alsa_get_spdif_port();
+        if (sound_dev_id < 0) {
+            sound_dev_id = 0;
+            adec_print("[%s::%d]--[get aml card device fail, use default]\n",__FUNCTION__, __LINE__);
+        }
+
+        adec_print("[%s::%d]--[sound_dev_id(spdif) return :%d]\n",__FUNCTION__, __LINE__,sound_dev_id);
+
+        if(0 == sound_dev_id) {
+            sound_dev_id = 1;
+        } else if(1 == sound_dev_id){
+            sound_dev_id = 0;
+        }
+        adec_print("[%s::%d]--[sound_dev_id convert to(pcm):%d]\n",__FUNCTION__, __LINE__,sound_dev_id);
+
+        sprintf(sound_card_dev, "hw:%d,%d", sound_card_id, sound_dev_id);
+    }else {
+        memcpy(sound_card_dev, PCM_DEVICE_DEFAULT, sizeof(PCM_DEVICE_DEFAULT));
+        amsysfs_set_sysfs_int("/sys/class/audiodsp/digital_codec",0);//set output codec type as pcm
+    }
+    adec_print("[%s::%d]--[sound_card_dev:%s]\n",__FUNCTION__, __LINE__,sound_card_dev);
+
+
+    err = snd_pcm_open(&alsa_param->handle, sound_card_dev, SND_PCM_STREAM_PLAYBACK, 0);
     if (err < 0) {
-        adec_print("audio open error: %s", snd_strerror(err));
+        adec_print("[%s::%d]--[audio open error: %s]\n", __FUNCTION__, __LINE__,snd_strerror(err));
         return -1;
+    } else {
+        adec_print("[%s::%d]--[audio open(snd_pcm_open) successfully]\n", __FUNCTION__, __LINE__);
     }
 
 
@@ -624,6 +681,22 @@ int alsa_init(struct aml_audio_dec* audec)
 
     alsa_param->playback_tid = tid;
 
+    alsactl_parser();
+
+    //ac3 and eac3 passthrough
+    if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ){
+
+        int err;
+        err = alsa_init_raw(audec);
+        if (err != 0) {
+            adec_print("alsa_init_raw return error:%d\n", err);
+            snd_pcm_close(alsa_param->handle);
+            return -1;
+        }
+
+    }
+
     return 0;
 }
 
@@ -640,12 +713,22 @@ int alsa_start(struct aml_audio_dec* audec)
 
     audio_out_operations_t *out_ops = &audec->aout_ops;
     alsa_param_t *alsa_param = (alsa_param_t *)out_ops->private_data;
+    int dgraw = amsysfs_get_sysfs_int("/sys/class/audiodsp/digital_raw");
 
     pthread_mutex_lock(&alsa_param->playback_mutex);
     adec_print("yvonne pthread_cond_signalalsa_param->wait_flag=1\n");
     alsa_param->wait_flag=1;//yvonneadded
     pthread_cond_signal(&alsa_param->playback_cond);
     pthread_mutex_unlock(&alsa_param->playback_mutex);
+
+    //ac3 and eac3 passthrough
+    if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        int err = alsa_start_raw(audec);
+        if(err) {
+            printf("alsa_start_raw return  error: %d\n", err);
+        }
+    }
 
     return 0;
 }
@@ -659,8 +742,9 @@ int alsa_pause(struct aml_audio_dec* audec)
 {
     adec_print("alsa out pause\n");
 
-    int res;
+    int res = 0;
     alsa_param_t *alsa_params;
+    int dgraw = amsysfs_get_sysfs_int("/sys/class/audiodsp/digital_raw");
 
     alsa_params = (alsa_param_t *)audec->aout_ops.private_data;
 
@@ -668,6 +752,16 @@ int alsa_pause(struct aml_audio_dec* audec)
     while ((res = snd_pcm_pause(alsa_params->handle, 1)) == -EAGAIN) {
         sleep(1);
     }
+
+    //ac3 and eac3 passthrough
+    if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        int err = alsa_pause_raw(audec);
+        if(err) {
+            printf("alsa_pause_raw return  error: %d\n", err);
+        }
+    }
+
 
     return res;
 }
@@ -681,8 +775,18 @@ int alsa_resume(struct aml_audio_dec* audec)
 {
     adec_print("alsa out rsume\n");
 
-    int res;
+    int res = 0;
     alsa_param_t *alsa_params;
+
+    //ac3 and eac3 passthrough
+    int dgraw = amsysfs_get_sysfs_int("/sys/class/audiodsp/digital_raw");
+    if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        int err = alsa_resume_raw(audec);
+        if(err) {
+              printf("alsa_resume_raw return  error: %d\n", err);
+        }
+    }
 
     alsa_params = (alsa_param_t *)audec->aout_ops.private_data;
 
@@ -701,14 +805,37 @@ int alsa_resume(struct aml_audio_dec* audec)
  */
 int alsa_stop(struct aml_audio_dec* audec)
 {
-    adec_print("enter alsa out stop\n");
+    int dgraw = amsysfs_get_sysfs_int("/sys/class/audiodsp/digital_raw");
 
+    int res = 0;
     alsa_param_t *alsa_params;
 
     alsa_params = (alsa_param_t *)audec->aout_ops.private_data;
+    adec_print("[%s::%d] in--[alsa_params:0x%x]\n",__FUNCTION__, __LINE__,alsa_params);
 
+    //resume the spdif card, otherwise the output will block
+    if(alsa_params->pause_flag == 1){
+        while ((res = snd_pcm_pause(alsa_params->handle, 0)) == -EAGAIN) {
+            usleep(1000);
+        }
+    }
+
+    //exit alsa_playback_loop
+    alsa_params->pause_flag = 0; //we should clear pause flag ,as we can stop from paused state
     alsa_params->stop_flag = 1;
     alsa_params->wait_flag = 0;
+
+    //ac3 and eac3 passthrough
+    if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
+        ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+
+        adec_print("enter alsa_stop_raw step\n");
+        int err = alsa_stop_raw(audec);
+        if(err) {
+            printf("alsa_stop_raw return  error: %d\n", err);
+        }
+    }
+
     pthread_cond_signal(&alsa_params->playback_cond);
     pthread_join(alsa_params->playback_tid, NULL);
     pthread_mutex_destroy(&alsa_params->playback_mutex);
@@ -728,7 +855,7 @@ int alsa_stop(struct aml_audio_dec* audec)
 static int alsa_get_space(alsa_param_t * alsa_param)
 {
     snd_pcm_status_t *status;
-    int ret;
+    int ret = 0;
 
     snd_pcm_status_alloca(&status);
     if ((ret = snd_pcm_status(alsa_param->handle, status)) < 0) {
@@ -759,16 +886,103 @@ unsigned long alsa_latency(struct aml_audio_dec* audec)
 }
 
 /**
+* alsa dumy codec controls interface
+*/
+int dummy_alsa_control(char * id_string , long vol, int rw, long * value){
+    int err = 0;
+    snd_hctl_t *hctl;
+    snd_ctl_elem_id_t *id;
+    snd_hctl_elem_t *elem;
+    snd_ctl_elem_value_t *control;
+    snd_ctl_elem_info_t *info;
+    snd_ctl_elem_type_t type;
+    unsigned int idx = 0, count;
+    long tmp, min, max;
+
+    if ((err = snd_hctl_open(&hctl, sound_card_dev, 0)) < 0) { 
+        printf("Control %s open error: %s\n", sound_card_dev, snd_strerror(err));
+        return err;
+    }
+    if (err = snd_hctl_load(hctl)< 0) {
+        printf("Control %s open error: %s\n", sound_card_dev, snd_strerror(err));
+        return err;
+    }
+    snd_ctl_elem_id_alloca(&id);
+    snd_ctl_elem_id_set_interface(id, SND_CTL_ELEM_IFACE_MIXER);
+    snd_ctl_elem_id_set_name(id, id_string);
+    elem = snd_hctl_find_elem(hctl, id);
+    snd_ctl_elem_value_alloca(&control);
+    snd_ctl_elem_value_set_id(control, id);
+    snd_ctl_elem_info_alloca(&info);
+    if ((err = snd_hctl_elem_info(elem, info)) < 0) {
+        printf("Control %s snd_hctl_elem_info error: %s\n", sound_card_dev, snd_strerror(err));
+        return err;
+    }    
+    count = snd_ctl_elem_info_get_count(info);
+    type = snd_ctl_elem_info_get_type(info);
+    
+    for (idx = 0; idx < count; idx++) {
+        switch (type) {
+            case SND_CTL_ELEM_TYPE_BOOLEAN:
+                if(rw){
+                    tmp = 0;
+                    if (vol >= 1) {
+                        tmp = 1;
+                    }
+                    snd_ctl_elem_value_set_boolean(control, idx, tmp);
+                    err = snd_hctl_elem_write(elem, control);
+                }else             	
+		    *value = snd_ctl_elem_value_get_boolean(control, idx);
+		    break;
+            case SND_CTL_ELEM_TYPE_INTEGER:
+                if(rw){
+		    min = snd_ctl_elem_info_get_min(info);
+		    max = snd_ctl_elem_info_get_max(info);
+                    if ((vol >= min) && (vol <= max))
+                        tmp = vol;
+		    else if (vol < min)
+                        tmp = min;
+                    else if (vol > max)
+                        tmp = max;
+                    snd_ctl_elem_value_set_integer(control, idx, tmp);
+                    err = snd_hctl_elem_write(elem, control);
+                }else             	
+	            *value = snd_ctl_elem_value_get_integer(control, idx);
+		    break;
+            default:
+                printf("?");
+	        break;
+        }
+        if (err < 0){
+            printf ("control%s access error=%s,close control device\n", sound_card_dev, snd_strerror(err));
+            snd_hctl_close(hctl);
+            return err;
+        }
+    }
+    
+    return 0;
+}
+/**
  * \brief mute output
  * \param audec pointer to audec
  * \param en  1 = mute, 0 = unmute
  * \return 0 on success otherwise negative error code
  */
 static int alsa_mute(struct aml_audio_dec* audec, adec_bool_t en){
-       return 0;
+
+    int dgraw = amsysfs_get_sysfs_int("/sys/class/audiodsp/digital_raw");
+
+    //ac3 and eac3 passthrough
+    if(((AUDIO_SPDIF_PASSTHROUGH == dgraw)||(AUDIO_HDMI_PASSTHROUGH == dgraw)) && \
+    ((ACODEC_FMT_AC3 == audec->format) || (ACODEC_FMT_EAC3 == audec->format)) ) {
+        int err = alsa_mute_raw(audec,en);
+        if(err) {
+            adec_print("alsa_mute_raw return  error: %d\n", err);
+        }
+    }
+
+    return 0;
 }
-
-
 /**
  * \brief get output handle
  * \param audec pointer to audec

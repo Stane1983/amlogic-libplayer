@@ -40,7 +40,7 @@
 
 static void flt_round(float32_t *pf)
 {
-    int32_t flg;
+    INT32_T flg;
     uint32_t tmp, tmp1, tmp2;
 
     tmp = *(uint32_t*)pf;

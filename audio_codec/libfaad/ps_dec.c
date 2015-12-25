@@ -28,6 +28,7 @@
 ** $Id: ps_dec.c,v 1.16 2009/01/26 22:32:31 menno Exp $
 **/
 #include <stdlib.h>
+#include <memory.h>
 #include "common.h"
 
 #ifdef PS_DEC

@@ -7,6 +7,9 @@
 #include <string.h>
 #include <errno.h>
 #include <linux/fb.h>
+#ifdef ANDROID
+#include <sys/system_properties.h>
+#endif
 #include <log-print.h>
 #include "aml_resample.h"
 

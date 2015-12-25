@@ -52,7 +52,7 @@ void* dropDataTask(void* argv){
             break;
         }
 
-        if(ret <0){
+        if(ret <0){
             if(ret == -11){
                 sleep(1);
                 LOGV("==========================dropDataTask====eagain===============\n");

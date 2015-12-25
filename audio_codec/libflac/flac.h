@@ -24,8 +24,8 @@
  * FLAC (Free Lossless Audio Codec) decoder/demuxer common functions
  */
 
-#ifndef AVCODEC_FLAC_H
-#define AVCODEC_FLAC_H
+#ifndef LIB_FLAC_H
+#define LIB_FLAC_H
 
 #include "avcodec.h"
 
@@ -99,7 +99,7 @@ void ff_flac_parse_streaminfo(AVCodecContext *avctx, struct FLACStreaminfo *s,
  * @param[out] streaminfo_start pointer to start of 34-byte STREAMINFO data.
  * @return 1 if valid, 0 if not valid.
  */
-int ff_flac_is_extradata_valid(AVCodecContext *avctx,
+int test_ff_flac_is_extradata_valid(AVCodecContext *avctx,
                                enum FLACExtradataFormat *format,
                                uint8_t **streaminfo_start);
 

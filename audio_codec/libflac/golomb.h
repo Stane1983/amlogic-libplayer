@@ -27,15 +27,15 @@
  * @author Michael Niedermayer <michaelni@gmx.at> and Alex Beregszaszi
  */
 
-#ifndef AVCODEC_GOLOMB_H
-#define AVCODEC_GOLOMB_H
+#ifndef LIBFLAC_GOLOMB_H
+#define LIBFLAC_GOLOMB_H
 
 #ifndef __MW__
 #include <stdint.h>
 #endif
 #include "get_bits.h"
 //#include "put_bits.h"
-
+#include <assert.h>
 #define INVALID_VLC           0x80000000
 #ifndef __MW__
 extern const uint8_t ff_golomb_vlc_len[512];

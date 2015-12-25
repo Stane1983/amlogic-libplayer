@@ -9121,7 +9121,7 @@ index 0000000..3defa40
 +				offset=ret;/*get error,exit now*/
 +				break;
 +			}
-+		}
++		}
 +		lp_lock(&lp->mutex);
 +	}else
 +	{/*not support in buffer seek,do low level seek now*/
@@ -9298,7 +9298,7 @@ index 0000000..dcdde9b
 +#define lp_unlock(x)   	pthread_mutex_unlock(x)
 +
 +
-+typedef struct  url_lpbuf{
++typedef struct  url_lpbuf{
 +	unsigned char *buffer;
 +	unsigned char *buffer_end;
 +	int buffer_size;
@@ -10183,7 +10183,7 @@ index 0000000..d5bd3a0
 +				av_log(NULL, AV_LOG_INFO, "list_seek to item->file =%s\n",item->file);
 +				return item->start_time;/*pos=0;*/
 +			}
-+		}
++		}
 +	}
 +	av_log(NULL, AV_LOG_INFO, "list_seek failed\n");
 +	return -1;
@@ -10848,7 +10848,7 @@ index 0000000..b189adc
 +			{
 +				memset(&tmpitem,0,sizeof(tmpitem));
 +				getnum++;
-+			}
++			}
 +		}else{
 +			if(tmpitem.flags&ALLOW_CACHE_FLAG)
 +				mgt->flags|=ALLOW_CACHE_FLAG;
@@ -10891,7 +10891,7 @@ index 0000000..b189adc
 +static int m3u_probe(ByteIOContext *s,const char *file)
 +{
 +	if(s)
-+	{
++	{
 +		char line[1024];
 +		if(m3u_format_get_line(s,line,1024)>0)
 +		{

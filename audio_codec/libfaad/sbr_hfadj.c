@@ -29,7 +29,7 @@
 **/
 
 /* High Frequency adjustment */
-
+#include <string.h>
 #include "common.h"
 #include "structs.h"
 

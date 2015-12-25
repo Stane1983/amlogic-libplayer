@@ -1,5 +1,5 @@
-#ifndef DSP_CODEC_HEADER
-#define DSP_CODEC_HEADER
+#ifndef LIBFLAC_HEADER
+#define LIBFLAC_HEADER
 #include "codec_message.h"
 
 struct codec_type

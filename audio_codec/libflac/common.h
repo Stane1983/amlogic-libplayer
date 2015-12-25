@@ -23,8 +23,8 @@
  * common internal and external API header
  */
 
-#ifndef AVUTIL_COMMON_H
-#define AVUTIL_COMMON_H
+#ifndef LIBFLAC_COMMON_H
+#define LIBFLAC_COMMON_H
 
 #include <string.h>
 #ifdef __MW__
@@ -131,9 +131,19 @@
 #define FFALIGN(x, a) (((x)+(a)-1)&~((a)-1))
 
 /* misc math functions */
-extern const uint8_t ff_log2_tab[256];
+//extern const uint8_t ff_log2_tab[256];
 
 extern const uint8_t av_reverse[256];
+static uint8_t ff_log2_tab[256]={
+        0,0,1,1,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+        5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,
+        6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+        6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,
+        7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+        7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+        7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+        7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
+};
 
 static inline av_const int av_log2(unsigned int v)
 {
@@ -162,7 +172,7 @@ static inline av_const int av_log2_16bit(unsigned int v)
 
     return n;
 }
-
+#if 0
 /**
  * Clips a signed integer value into the amin-amax range.
  * @param a value to clip
@@ -232,7 +242,7 @@ static inline av_const int av_ceil_log2(int x)
 {
     return av_log2((x - 1) << 1);
 }
-
+#endif 
 #define MKTAG(a,b,c,d) (a | (b << 8) | (c << 16) | (d << 24))
 #define MKBETAG(a,b,c,d) (d | (c << 8) | (b << 16) | (a << 24))
 

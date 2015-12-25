@@ -23,18 +23,19 @@
  * bitstream reader API header.
  */
 
-#ifndef AVCODEC_GET_BITS_H
-#define AVCODEC_GET_BITS_H
+#ifndef LIBFLAC_GET_BITS_H
+#define LIBFLAC_GET_BITS_H
 
 #include "mathops.h"
 #include "bswap.h"
 //#include <ffmpeg/libavutil/common.h>
 #include "intreadwrite.h"
 //#include <core/dsp.h>
-
+#ifdef ANDROID
 #include <android/log.h>
-
 #define  LOG_TAG    "get_bits"
+#endif
+#define LOGD printf
 //goes the  A32_BITSTREAM_READER passage
 #if defined(ALT_BITSTREAM_READER_LE) && !defined(ALT_BITSTREAM_READER)
 #define ALT_BITSTREAM_READER

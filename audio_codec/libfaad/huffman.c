@@ -523,7 +523,7 @@ int8_t huffman_spectral_data_2(uint8_t cb, bits_t *ld, int16_t *sp)
             if ((sp[k] == 16) || (sp[k] == -16))
             {
                 uint8_t neg, i;
-                int32_t j;
+                INT32_T j;
                 uint32_t off;
 
                 neg = (sp[k] < 0) ? 1 : 0; 

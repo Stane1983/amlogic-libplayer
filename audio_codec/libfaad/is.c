@@ -54,7 +54,7 @@ void is_decode(ic_stream *ics, ic_stream *icsr, real_t *l_spec, real_t *r_spec,
 #ifndef FIXED_POINT
     real_t scale;
 #else
-    int32_t exp, frac;
+    INT32_T exp, frac;
 #endif
 
     uint16_t nshort = frame_len/8;

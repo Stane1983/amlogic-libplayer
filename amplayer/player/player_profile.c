@@ -80,7 +80,31 @@ static int parse_h264_param(char *str, sys_h264_profile_t *para, int size)
     para->exist = 1;
 	
     log_info("h264 decoder exist.");
+
+    return 0;
+}
+
+static int parse_hevc_param(char *str, sys_hevc_profile_t *para, int size)
+{
+    para->exist = 1;
 	
+    log_info("hevc decoder exist.");
+
+    if (strstr(str, "4k")) {
+        para->support4k = 1;
+    }
+    if (strstr(str, "9bit")) {
+        para->support_9bit = 1;
+    }
+    if (strstr(str, "10bit")) {
+        para->support_10bit = 1;
+    }
+    if (strstr(str, "dwrite")) {
+        para->support_dwwrite = 1;
+    }
+    if (strstr(str, "compressed")) {
+        para->support_compressed = 1;
+    }
     return 0;
 }
 
@@ -122,12 +146,26 @@ static int parse_hmvc_param(char *str, sys_hmvc_profile_t *para, int size)
     return 0;
 }
 
+static int parse_avs_param(char *str, sys_avs_profile_t *para, int size)
+{
+    para->exist = 1;
+
+    log_info("hevc decoder exist.");
+
+    if (strstr(str, "avs+")) {
+        para->support_avsplus = 1;
+    }
+
+    return 0;
+}
 static int parse_param(char *str, char **substr, int size, vdec_profile_t *para)
 {
     if (!strcmp(*substr, "vc1:")) {
         parse_vc1_param(str, &para->vc1_para, size);
     } else if (!strcmp(*substr, "h264:")) {
         parse_h264_param(str, &para->h264_para, size);
+    } else if (!strcmp(*substr, "hevc:")) {
+        parse_hevc_param(str, &para->hevc_para, size);
     } else if (!strcmp(*substr, "real:")) {
         parse_real_param(str, &para->real_para, size);
     } else if (!strcmp(*substr, "mpeg12:")) {
@@ -140,6 +178,8 @@ static int parse_param(char *str, char **substr, int size, vdec_profile_t *para)
         parse_h264_4k2k_param(str, &para->h264_4k2k_para, size);
     } else if (!strcmp(*substr, "hmvc:")) {
         parse_hmvc_param(str, &para->hmvc_para, size);
+    }else if (!strcmp(*substr, "avs:")) {
+        parse_avs_param(str, &para->avs_para, size);
     }
     return 0;
 }
@@ -149,8 +189,7 @@ static int parse_sysparam_str(vdec_profile_t *m_vdec_profiles, char *str)
     int i, j;
     int pos_start, pos_end;
     char *p;
-    char *substr[] = {"vc1:", "h264:", "real:", "mpeg12:", "mpeg4:", "mjpeg:", "h264_4k2k:", "hmvc:"};
-
+    char *substr[] = {"vc1:", "h264:", "real:", "mpeg12:", "mpeg4:", "mjpeg:", "h264_4k2k:", "hmvc:", "hevc:", "avs:"};
     for (j = 0; j < sizeof(substr) / sizeof(char *); j ++) {
         p = strstr(str, substr[j]);
         if (p != NULL) {

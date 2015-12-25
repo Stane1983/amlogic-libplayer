@@ -32,12 +32,10 @@
    Reads the AAC bitstream as defined in 14496-3 (MPEG-4 Audio)
 */
 #include <stdlib.h>
-#include "common.h"
-#include "structs.h"
-
 #include <stdio.h>
 #include <string.h>
-
+#include "common.h"
+#include "structs.h"
 #include "syntax.h"
 #include "specrec.h"
 #include "huffman.h"

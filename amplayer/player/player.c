@@ -910,7 +910,9 @@ void *player_thread(play_para_t *player)
 
     set_player_state(player, PLAYER_INITOK);
     update_playing_info(player);
+	log_print("%s,%d\n",__FUNCTION__,__LINE__);
     update_player_states(player, 1);
+	log_print("%s,%d\n",__FUNCTION__,__LINE__);
 #if 0
     switch (player->pFormatCtx->drm.drm_check_value) {
     case 1: // unauthorized
@@ -938,6 +940,7 @@ void *player_thread(play_para_t *player)
         break;
     }
 #endif
+log_print("player->start_param->need_start=%d\n",player->start_param->need_start);
     if (player->start_param->need_start) {
         int flag = 0;
         do {

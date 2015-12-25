@@ -39,7 +39,7 @@
 #include "sbr_fbt.h"
 
 /* static function declarations */
-static int32_t find_bands(uint8_t warp, uint8_t bands, uint8_t a0, uint8_t a1);
+static INT32_T find_bands(uint8_t warp, uint8_t bands, uint8_t a0, uint8_t a1);
 
 
 /* calculate the start QMF channel for the master frequency band table */
@@ -105,7 +105,7 @@ uint8_t qmf_start_channel(uint8_t bs_start_freq, uint8_t bs_samplerate_mode,
 
 static int longcmp(const void *a, const void *b)
 {
-    return ((int)(*(int32_t*)a - *(int32_t*)b));
+    return ((int)(*(INT32_T*)a - *(INT32_T*)b));
 }
 
 /* calculate the stop QMF channel for the master frequency band table */
@@ -137,7 +137,7 @@ uint8_t qmf_stop_channel(uint8_t bs_stop_freq, uint32_t sample_rate,
         };
 #if 0
         uint8_t i;
-        int32_t stopDk[13], stopDk_t[14], k2;
+        INT32_T stopDk[13], stopDk_t[14], k2;
 #endif
         uint8_t stopMin = stopMinTable[get_sr_index(sample_rate)];
 
@@ -156,7 +156,7 @@ uint8_t qmf_stop_channel(uint8_t bs_stop_freq, uint32_t sample_rate,
         /* diverging power series */
         for (i = 0; i <= 13; i++)
         {
-            stopDk_t[i] = (int32_t)(stopMin*pow(64.0/stopMin, i/13.0) + 0.5);
+            stopDk_t[i] = (INT32_T)(stopMin*pow(64.0/stopMin, i/13.0) + 0.5);
         }
         for (i = 0; i < 13; i++)
         {
@@ -192,7 +192,7 @@ uint8_t master_frequency_table_fs0(sbr_info *sbr, uint8_t k0, uint8_t k2,
     uint8_t k;
     uint8_t dk;
     uint32_t nrBands, k2Achieved;
-    int32_t k2Diff, vDk[64] = {0};
+    INT32_T k2Diff, vDk[64] = {0};
 
     /* mft only defined for k2 > k0 */
     if (k2 <= k0)
@@ -204,7 +204,7 @@ uint8_t master_frequency_table_fs0(sbr_info *sbr, uint8_t k0, uint8_t k2,
     dk = bs_alter_scale ? 2 : 1;
 
 #if 0 /* replaced by float-less design */
-    nrBands = 2 * (int32_t)((float)(k2-k0)/(dk*2) + (-1+dk)/2.0f);
+    nrBands = 2 * (INT32_T)((float)(k2-k0)/(dk*2) + (-1+dk)/2.0f);
 #else
     if (bs_alter_scale)
     {
@@ -258,7 +258,7 @@ uint8_t master_frequency_table_fs0(sbr_info *sbr, uint8_t k0, uint8_t k2,
    This function finds the number of bands using this formula:
     bands * log(a1/a0)/log(2.0) + 0.5
 */
-static int32_t find_bands(uint8_t warp, uint8_t bands, uint8_t a0, uint8_t a1)
+static INT32_T find_bands(uint8_t warp, uint8_t bands, uint8_t a0, uint8_t a1)
 {
 #ifdef FIXED_POINT
     /* table with log2() values */
@@ -296,7 +296,7 @@ static int32_t find_bands(uint8_t warp, uint8_t bands, uint8_t a0, uint8_t a1)
     real_t div = (real_t)log(2.0);
     if (warp) div *= (real_t)1.3;
 
-    return (int32_t)(bands * log((float)a1/(float)a0)/div + 0.5);
+    return (INT32_T)(bands * log((float)a1/(float)a0)/div + 0.5);
 #endif
 }
 
@@ -351,11 +351,11 @@ uint8_t master_frequency_table(sbr_info *sbr, uint8_t k0, uint8_t k2,
     uint8_t k, bands, twoRegions;
     uint8_t k1;
     uint8_t nrBand0, nrBand1;
-    int32_t vDk0[64] = {0}, vDk1[64] = {0};
-    int32_t vk0[64] = {0}, vk1[64] = {0};
+    INT32_T vDk0[64] = {0}, vDk1[64] = {0};
+    INT32_T vk0[64] = {0}, vk1[64] = {0};
     uint8_t temp1[] = { 6, 5, 4 };
     real_t q, qk;
-    int32_t A_1;
+    INT32_T A_1;
 #ifdef FIXED_POINT
     real_t rk2, rk0;
 #endif
@@ -392,21 +392,21 @@ uint8_t master_frequency_table(sbr_info *sbr, uint8_t k0, uint8_t k2,
     q = find_initial_power(nrBand0, k0, k1);
 #ifdef FIXED_POINT
     qk = (real_t)k0 << REAL_BITS;
-    //A_1 = (int32_t)((qk + REAL_CONST(0.5)) >> REAL_BITS);
+    //A_1 = (INT32_T)((qk + REAL_CONST(0.5)) >> REAL_BITS);
     A_1 = k0;
 #else
     qk = REAL_CONST(k0);
-    A_1 = (int32_t)(qk + .5);
+    A_1 = (INT32_T)(qk + .5);
 #endif
     for (k = 0; k <= nrBand0; k++)
     {
-        int32_t A_0 = A_1;
+        INT32_T A_0 = A_1;
 #ifdef FIXED_POINT
         qk = MUL_R(qk,q);
-        A_1 = (int32_t)((qk + REAL_CONST(0.5)) >> REAL_BITS);
+        A_1 = (INT32_T)((qk + REAL_CONST(0.5)) >> REAL_BITS);
 #else
         qk *= q;
-        A_1 = (int32_t)(qk + 0.5);
+        A_1 = (INT32_T)(qk + 0.5);
 #endif
         vDk0[k] = A_1 - A_0;
     }
@@ -438,28 +438,28 @@ uint8_t master_frequency_table(sbr_info *sbr, uint8_t k0, uint8_t k2,
     q = find_initial_power(nrBand1, k1, k2);
 #ifdef FIXED_POINT
     qk = (real_t)k1 << REAL_BITS;
-    //A_1 = (int32_t)((qk + REAL_CONST(0.5)) >> REAL_BITS);
+    //A_1 = (INT32_T)((qk + REAL_CONST(0.5)) >> REAL_BITS);
     A_1 = k1;
 #else
     qk = REAL_CONST(k1);
-    A_1 = (int32_t)(qk + .5);
+    A_1 = (INT32_T)(qk + .5);
 #endif
     for (k = 0; k <= nrBand1 - 1; k++)
     {
-        int32_t A_0 = A_1;
+        INT32_T A_0 = A_1;
 #ifdef FIXED_POINT
         qk = MUL_R(qk,q);
-        A_1 = (int32_t)((qk + REAL_CONST(0.5)) >> REAL_BITS);
+        A_1 = (INT32_T)((qk + REAL_CONST(0.5)) >> REAL_BITS);
 #else
         qk *= q;
-        A_1 = (int32_t)(qk + 0.5);
+        A_1 = (INT32_T)(qk + 0.5);
 #endif
         vDk1[k] = A_1 - A_0;
     }
 
     if (vDk1[0] < vDk0[nrBand0 - 1])
     {
-        int32_t change;
+        INT32_T change;
 
         /* needed? */
         qsort(vDk1, nrBand1 + 1, sizeof(vDk1[0]), longcmp);
@@ -566,7 +566,7 @@ uint8_t derived_frequency_table(sbr_info *sbr, uint8_t bs_xover_band,
         sbr->N_Q = 1;
     } else {
 #if 0
-        sbr->N_Q = max(1, (int32_t)(sbr->bs_noise_bands*(log(k2/(float)sbr->kx)/log(2.0)) + 0.5));
+        sbr->N_Q = max(1, (INT32_T)(sbr->bs_noise_bands*(log(k2/(float)sbr->kx)/log(2.0)) + 0.5));
 #else
         sbr->N_Q = (uint8_t)(max(1, find_bands(0, sbr->bs_noise_bands, sbr->kx, k2)));
 #endif
@@ -579,7 +579,7 @@ uint8_t derived_frequency_table(sbr_info *sbr, uint8_t bs_xover_band,
         {
             i = 0;
         } else {
-            /* i = i + (int32_t)((sbr->N_low - i)/(sbr->N_Q + 1 - k)); */
+            /* i = i + (INT32_T)((sbr->N_low - i)/(sbr->N_Q + 1 - k)); */
             i = i + (sbr->N_low - i)/(sbr->N_Q + 1 - k);
         }
         sbr->f_table_noise[k] = sbr->f_table_res[LO_RES][i];
@@ -647,7 +647,7 @@ void limiter_frequency_table(sbr_info *sbr)
 
     for (s = 1; s < 4; s++)
     {
-        int32_t limTable[100 /*TODO*/] = {0};
+        INT32_T limTable[100 /*TODO*/] = {0};
         uint8_t patchBorders[64/*??*/] = {0};
 
 #if 0

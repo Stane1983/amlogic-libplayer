@@ -51,7 +51,7 @@ extern "C" {
 #define FRAC_PRECISION ((uint32_t)(1 << FRAC_BITS))
 #define FRAC_MAX 0x7FFFFFFF
 
-typedef int32_t real_t;
+typedef INT32_T real_t;
 
 
 #define REAL_CONST(A) (((A) >= 0) ? ((real_t)((A)*(REAL_PRECISION)+0.5)) : ((real_t)((A)*(REAL_PRECISION)-0.5)))
@@ -217,7 +217,7 @@ static INLINE real_t MUL_F(real_t A, real_t B)
 static INLINE void ComplexMult(real_t *y1, real_t *y2,
     real_t x1, real_t x2, real_t c1, real_t c2)
 {
-    int32_t tmp, yt1, yt2;
+    INT32_T tmp, yt1, yt2;
     asm("smull %0, %1, %4, %6\n\t"
         "smlal %0, %1, %5, %7\n\t"
         "rsb   %3, %4, #0\n\t"

@@ -28,13 +28,12 @@
 ** $Id: sbr_qmf.c,v 1.32 2007/11/01 12:33:36 menno Exp $
 **/
 #include <stdlib.h>
+#include <string.h>
 #include "common.h"
 #include "structs.h"
 
 #ifdef SBR_DEC
 
-
-#include <string.h>
 #include "sbr_dct.h"
 #include "sbr_qmf.h"
 #include "sbr_qmf_c.h"
@@ -253,7 +252,7 @@ void sbr_qmf_synthesis_32(sbr_info *sbr, qmfs_info *qmfs, qmf_t X[MAX_NTSRHFG][6
 {
     ALIGN real_t x[16];
     ALIGN real_t y[16];
-    int32_t n, k, out = 0;
+    INT32_T n, k, out = 0;
     uint8_t l;
 
     /* qmf subsample l */
@@ -322,7 +321,7 @@ void sbr_qmf_synthesis_64(sbr_info *sbr, qmfs_info *qmfs, qmf_t X[MAX_NTSRHFG][6
 {
     ALIGN real_t x[64];
     ALIGN real_t y[64];
-    int32_t n, k, out = 0;
+    INT32_T n, k, out = 0;
     uint8_t l;
 
 
@@ -394,7 +393,7 @@ void sbr_qmf_synthesis_32(sbr_info *sbr, qmfs_info *qmfs, qmf_t X[MAX_NTSRHFG][6
 #ifndef FIXED_POINT
     real_t scale = 1.f/64.f;
 #endif
-    int32_t n, k, out = 0;
+    INT32_T n, k, out = 0;
     uint8_t l;
 
 
@@ -477,7 +476,7 @@ void sbr_qmf_synthesis_64(sbr_info *sbr, qmfs_info *qmfs, qmf_t X[MAX_NTSRHFG][6
 #ifndef FIXED_POINT
     real_t scale = 1.f/64.f;
 #endif
-    int32_t n, k, out = 0;
+    INT32_T n, k, out = 0;
     uint8_t l;
 
 

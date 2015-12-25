@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVUTIL_CRC_H
-#define AVUTIL_CRC_H
+#ifndef LIBFLAC_CRC_H
+#define LIBFLAC_CRC_H
 #if 1
 #include <stdint.h>
 #else

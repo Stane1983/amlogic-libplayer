@@ -428,14 +428,14 @@ int set_file_type(const char *name, pfile_type *ftype, pstream_type *stype)
     int i, j ;
     j = sizeof(media_array) / sizeof(media_type);
     for (i = 0; i < j; i++) {
-        //log_print("[set_file_type:0]name = %s  mname=%s\n",name ,media_array[i].file_ext);
+        log_print("[set_file_type:0]name = %s  mname=%s\n",name ,media_array[i].file_ext);
         if (strcmp(name, media_array[i].file_ext) == 0) {
             break;
         }
     }
     if (i == j) {
         for (i = 0; i < j; i++) {
-            //log_print("[set_file_type:1]name = %s  mname=%s\n",name ,media_array[i].file_ext);
+            log_print("[set_file_type:1]name = %s  mname=%s\n",name ,media_array[i].file_ext);
             if (strstr(name, media_array[i].file_ext) != NULL) {
                 break;
             }
@@ -1616,9 +1616,9 @@ int write_av_packet(play_para_t *para)
 	}
 	
     if (am_getconfig_float("media.libplayer.dumpmode", &value) == 0) {
-        dump_data_mode = (int)value;
+        dump_data_mode = (int)value; 
     }
-
+		
     if (dump_data_mode == DUMP_WRITE_RAW_DATA && fdw_raw == -1) {
         sprintf(dump_path, "/temp/pid%d_dump_write.dat", para->player_id);
         fdw_raw = open(dump_path, O_CREAT | O_RDWR, 0666);
@@ -2100,6 +2100,7 @@ int set_header_info(play_para_t *para)
                         return ret;
                     }
                 }
+
             } else if(para->vstream_info.video_format == VFORMAT_HEVC
                  && para->file_type != STREAM_FILE) {
                 if (!(para->p_pkt->avpkt->flags & AV_PKT_FLAG_ISDECRYPTINFO)){

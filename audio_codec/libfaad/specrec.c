@@ -35,10 +35,11 @@
    - applying scalefactors
 */
 #include <stdlib.h>
+#include <string.h>
 #include "common.h"
 #include "structs.h"
 
-#include <string.h>
+
 #include "specrec.h"
 #include "filtbank.h"
 #include "syntax.h"
@@ -576,7 +577,7 @@ static uint8_t quant_to_spec(NeAACDecStruct *hDecoder,
 
         for (sfb = 0; sfb < ics->num_swb; sfb++)
         {
-            int32_t exp, frac;
+            INT32_T exp, frac;
 
             width = ics->swb_offset[sfb+1] - ics->swb_offset[sfb];
 

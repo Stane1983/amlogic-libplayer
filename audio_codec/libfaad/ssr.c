@@ -140,7 +140,7 @@ static void ssr_gc_function(ssr_info *ssr, real_t *prev_fmd,
 {
     uint16_t i;
     uint16_t len_area1, len_area2;
-    int32_t aloc[10];
+    INT32_T aloc[10];
     real_t alev[10];
 
     switch (window_sequence)

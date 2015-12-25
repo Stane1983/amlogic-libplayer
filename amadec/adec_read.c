@@ -40,6 +40,9 @@ volatile unsigned* reg_base = 0;
 #define AIFIFO_READY  (((READ_MPEG_REG(AIU_MEM_AIFIFO_CONTROL)&(1<<9))))
 #define min(x,y) ((x<y)?(x):(y))
 
+static volatile long memmap = MAP_FAILED;
+static int phys_size = 0;
+
 static unsigned long  get_num_infile(char *file)
 {
 	return amsysfs_get_sysfs_ulong(file);
@@ -49,9 +52,9 @@ int uio_init(aml_audio_dec_t *audec){
 //	int fd = -1; 
 	int pagesize = getpagesize();
 	int phys_start;
-	int phys_size;
+//	int phys_size;
 	int phys_offset;
-	volatile unsigned memmap;	
+//	volatile unsigned memmap;	
 
 
 	audec->fd_uio = open(ASTREAM_DEV, O_RDWR);
@@ -74,6 +77,9 @@ int uio_init(aml_audio_dec_t *audec){
 		return -1;
 	}	 
 	 
+	if (phys_offset == 0)
+		phys_offset = (AIU_AIFIFO_CTRL*4)&(pagesize-1);
+
 	reg_base = memmap + phys_offset;
 	return 0;
 }

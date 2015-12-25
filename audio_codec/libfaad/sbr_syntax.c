@@ -27,7 +27,7 @@
 **
 ** $Id: sbr_syntax.c,v 1.39 2009/01/26 22:32:31 menno Exp $
 **/
-
+#include <memory.h>
 #include "common.h"
 #include "structs.h"
 

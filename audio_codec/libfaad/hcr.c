@@ -28,10 +28,9 @@
 ** $Id: hcr.c,v 1.26 2009/01/26 23:51:15 menno Exp $
 **/
 #include <stdlib.h>
+#include <string.h>
 #include "common.h"
 #include "structs.h"
-
-#include <string.h>
 
 #include "specrec.h"
 #include "huffman.h"

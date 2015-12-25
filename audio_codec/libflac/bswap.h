@@ -23,8 +23,8 @@
  * byte swapping routines
  */
 
-#ifndef AVUTIL_BSWAP_H
-#define AVUTIL_BSWAP_H
+#ifndef LIBFLAC_BSWAP_H
+#define LIBFLAC_BSWAP_H
 
 #ifdef __MW__
 #define inline __inline

@@ -48,7 +48,8 @@ int codec_h_close(CODEC_HANDLE h);
 int codec_h_write(CODEC_HANDLE , void *, int);
 int codec_h_read(CODEC_HANDLE, void *, int);
 int codec_h_control(CODEC_HANDLE h, int cmd, unsigned long paramter);
-
+void codec_h_set_support_new_cmd(int value);
+int codec_h_is_support_new_cmd();
 
 
 #endif

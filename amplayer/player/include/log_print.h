@@ -19,11 +19,19 @@ void log_lprint(const int level, const char *fmt, ...);
 #define AM_LOG_DEBUG2 	80
 #define AM_LOG_TRACE 	90
 
-
+#ifdef ANDROID
 #define log_print(fmt...) 	log_lprint(AM_LOG_INFO,##fmt)
 #define log_error(fmt...) 	log_lprint(AM_LOG_ERROR,##fmt)
 #define log_warning(fmt...) log_lprint(AM_LOG_WARNING,##fmt)
 #define log_info(fmt...) 	log_lprint(AM_LOG_INFO,##fmt)
+
+#else
+#define log_print printf
+#define log_error printf
+#define log_warning printf
+#define log_info printf
+#endif 
+
 /*default global_level=5,
 if the level<global_level print out
 */

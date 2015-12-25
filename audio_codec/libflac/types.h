@@ -1,6 +1,6 @@
 
-#ifndef _DSP_TYPES_H
-#define	_DSP_TYPES_H
+#ifndef _LIBFLAC_TYPES_H
+#define	_LIBFLAC_TYPES_H
 /* bsd */
 typedef unsigned char		u_char;
 typedef unsigned short		u_short;

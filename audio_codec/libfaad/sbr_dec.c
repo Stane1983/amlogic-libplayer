@@ -29,12 +29,12 @@
 **/
 
 #include <stdlib.h>
+//#include <string.h>
+#include <memory.h>
 #include "common.h"
 #include "structs.h"
 
 #ifdef SBR_DEC
-
-#include <string.h>
 
 #include "syntax.h"
 #include "bits.h"
@@ -308,7 +308,7 @@ static uint8_t sbr_process_channel(sbr_info *sbr, real_t *channel_buf, qmf_t X[M
 #ifdef DRM
     if (sbr->Is_DRM_SBR)
     {
-        sbr->bsco = max((int32_t)sbr->maxAACLine*32/(int32_t)sbr->frame_len - (int32_t)sbr->kx, 0);
+        sbr->bsco = max((INT32_T)sbr->maxAACLine*32/(INT32_T)sbr->frame_len - (INT32_T)sbr->kx, 0);
     } else {
 #endif
         sbr->bsco = 0;

@@ -735,20 +735,49 @@ static void get_stream_info(play_para_t *p_para)
                 (p_para->vstream_info.video_height > 2304)) {
                 unsupported_video = 1;
                 log_print("[%s:%d] H.264 video profile not supported", __FUNCTION__, __LINE__);
-            } else if ((p_para->vstream_info.video_width > 1920) ||
-                       (p_para->vstream_info.video_height > 1088)) {
+            } else if ((p_para->vstream_info.video_width * p_para->vstream_info.video_height) > (1920 * 1088)) {
                 if (p_para->vdec_profile.h264_4k2k_para.exist) {
                     p_para->vstream_info.video_format = VFORMAT_H264_4K2K;
                     log_print("H.264 4K2K video format applied.");
-                } else if ((p_para->vstream_info.video_width * p_para->vstream_info.video_height) >(1920*1088))  {
+                } else {
                     unsupported_video = 1;
-                    log_print("[%s:%d] H.264 video profile not supported");
+                    log_print("[%d x %d] H.264 video profile not supported", p_para->vstream_info.video_width, p_para->vstream_info.video_height);
                 }
             }
+        } else if (p_para->vstream_info.video_format == VFORMAT_MPEG4) {
+            if ((p_para->vstream_info.video_width * p_para->vstream_info.video_height) > (1920 * 1088)) {
+                unsupported_video = 1;
+            }
+        } else if (p_para->vstream_info.video_format == VFORMAT_AVS) {
+            if (p_para->pFormatCtx->streams[video_index]->codec->profile == 1
+                && !p_para->vdec_profile.avs_para.support_avsplus) {
+                unsupported_video = 1;
+                log_print("[%s:%d]avs+, not support now!\n", __FUNCTION__, __LINE__);
+            }
         } else {
+            if (p_para->vstream_info.video_format == VFORMAT_HEVC) {
+                unsupported_video = p_para->pFormatCtx->streams[video_index]->codec->long_term_ref_pic == 1;
+                if (unsupported_video) {
+                    log_print("[%s:%d]hevc long term ref pic, not support now!\n", __FUNCTION__, __LINE__);
+                }
+                if (!unsupported_video) {
+                    unsupported_video = (p_para->pFormatCtx->streams[video_index]->codec->bit_depth == 9 &&
+                                         !p_para->vdec_profile.hevc_para.support_9bit) ||
+                                        (p_para->pFormatCtx->streams[video_index]->codec->bit_depth == 10 &&
+                                         !p_para->vdec_profile.hevc_para.support_10bit);
+                    if (unsupported_video) {
+                        log_print("[%s]hevc 9/10 bit profile, not support for this chip configure!,bit_depth=%d\n", __FUNCTION__,
+                                  p_para->pFormatCtx->streams[video_index]->codec->bit_depth);
+                    }
+                }
+            }
             if ((p_para->vstream_info.video_width > 1920) ||
                 (p_para->vstream_info.video_height > 1088)) {
-                unsupported_video = 1;
+                if (p_para->vstream_info.video_format == VFORMAT_HEVC) {
+                    unsupported_video = (!p_para->vdec_profile.hevc_para.support4k | unsupported_video);
+                } else {
+                    unsupported_video = 1;
+                }
             } else if (p_para->vstream_info.video_format == VFORMAT_VC1) {
                 if ((!p_para->vdec_profile.vc1_para.interlace_enable) &&
                     (p_para->pFormatCtx->streams[video_index]->codec->frame_interlace)) {
@@ -805,7 +834,7 @@ static int set_decode_para(play_para_t*am_p)
         if(VFORMAT_H264MVC==am_p->vstream_info.video_format){
             am_p->vstream_info.video_format=VFORMAT_H264;/*if kernel not support mvc,just playing as 264 now.*/
             if ((am_p->vstream_info.video_width > 1920) ||
-           	(am_p->vstream_info.video_height > 1088)) {
+                (am_p->vstream_info.video_height > 1088)) {
                 if (am_p->vdec_profile.h264_4k2k_para.exist) {
                     am_p->vstream_info.video_format = VFORMAT_H264_4K2K;
                     log_print("H.264 4K2K video format applied.");

@@ -20,7 +20,7 @@ static int stream_video_init(play_para_t *p_para)
         return PLAYER_EMPTY_P;
     }
     MEMSET(codec, 0, sizeof(codec_para_t));
-
+    log_print("enter %s,%d\n",__FUNCTION__,__LINE__);
     if (vinfo->has_video) {
         codec->has_video = 1;
         codec->video_type = vinfo->video_format;
@@ -36,6 +36,7 @@ static int stream_video_init(play_para_t *p_para)
         codec->am_sysinfo.width   = vinfo->video_width;
         codec->am_sysinfo.rate    = vinfo->video_rate;
     }
+	log_print("format=%d\n",codec->am_sysinfo.format);
     ret = codec_init(codec);
     if (ret != CODEC_ERROR_NONE) {
         if (ret != CODEC_OPEN_HANDLE_FAILED) {

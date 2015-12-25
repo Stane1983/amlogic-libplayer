@@ -86,6 +86,52 @@ int codec_get_mutesta(codec_para_t *p)
 
 /* --------------------------------------------------------------------------*/
 /**
+* @brief  linux codec_set_mute  Set audio mute
+* @param[in]  mute  mute command, 1 for mute, 0 for unmute
+*
+* @return     audio command result
+*/
+/* --------------------------------------------------------------------------*/
+int dummy_codec_set_mute(int mute)
+{
+    int ret;
+    CODEC_PRINT("dumyy codec set mute =%d\n",mute);
+    /* 1: mut output. 0: unmute output */
+    ret = dummy_decode_set_mute(mute);
+    
+    return ret;
+}
+
+/* --------------------------------------------------------------------------*/
+/**
+* @brief  codec_set_volume  Set audio volume
+
+* @param[in]  val  Volume to be set
+*
+* @return     command result
+*/
+/* --------------------------------------------------------------------------*/
+int dummy_codec_set_volume(int val)
+{
+    int ret;
+    ret = dummy_decode_set_volume(val);
+    return ret;
+}
+
+/* --------------------------------------------------------------------------*/
+/**
+* @brief  codec_get_volume  Get audio volume*
+* @return     command result
+*/
+/* --------------------------------------------------------------------------*/
+int dummy_codec_get_volume(int *val)
+{
+    int ret;
+    ret = dummy_decode_get_volume(val);
+    return ret;
+}	
+/* --------------------------------------------------------------------------*/
+/**
 * @brief  codec_set_mute  Set audio mute
 *
 * @param[in]  p     Pointer of codec parameter structure

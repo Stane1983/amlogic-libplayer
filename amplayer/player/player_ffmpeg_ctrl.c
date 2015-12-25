@@ -170,7 +170,8 @@ int ffmpeg_open_file(play_para_t *am_p)
     if (am_p->file_name != NULL) {
 Retry_open:
         //ret = av_open_input_file(&pFCtx, am_p->file_name, NULL, byteiosize, NULL, am_p->start_param ? am_p->start_param->headers : NULL);
-        ret = av_open_input_file_header(&pFCtx, am_p->file_name, NULL, byteiosize, NULL, header);
+        log_print("call av_open_input_file_header\n ");
+		ret = av_open_input_file_header(&pFCtx, am_p->file_name, NULL, byteiosize, NULL, header);
         if(am_getconfig_bool_def("media.amplayer.disp_url",1)>0){ 
             log_print("[ffmpeg_open_file] file=%s,header=%s\n", am_p->file_name, header);
         }
@@ -201,6 +202,7 @@ int ffmpeg_parse_file_type(play_para_t *am_p, player_file_type_t *type)
         int vpx_flag = 0;
         int flv_flag = 0;
         int hevc_flag = 0;
+		int wmv1_flag = 0;
         int wmv2_flag = 0;
         int rm_flag = 0;
 
@@ -281,7 +283,7 @@ int ffmpeg_parse_file_type(play_para_t *am_p, player_file_type_t *type)
 		 }
 	   //-----------------------------------------------------
         // special process for webm/vpx, flv/vp6, hevc/h.265
-        if (matroska_flag || flv_flag || vpx_flag || hevc_flag || wmv2_flag || rm_flag) {
+		if (matroska_flag || flv_flag || vpx_flag || hevc_flag ) {
             int length = 0;
 
             memset(format_string, 0, sizeof(format_string));
@@ -292,7 +294,7 @@ int ffmpeg_parse_file_type(play_para_t *am_p, player_file_type_t *type)
                 length = sprintf(format_string, "%s", type->fmt_string);
             }
 
-            if (vpx_flag == 1 || hevc_flag == 1 || wmv2_flag == 1 || rm_flag == 1) {
+            if (vpx_flag == 1 || hevc_flag == 1 ) {
                 sprintf(&format_string[length], ",%s", vpx_string);
                 memset(vpx_string, 0, sizeof(vpx_string));
             }

@@ -28,12 +28,11 @@
 ** $Id: decoder.c,v 1.117 2009/02/05 00:51:03 menno Exp $
 **/
 
-#include "common.h"
-#include "structs.h"
-
 #include <stdio.h>
 //#include <string.h>
-
+#include <memory.h>
+#include "common.h"
+#include "structs.h"
 #include "mp4.h"
 #include "syntax.h"
 #include "error.h"
@@ -63,6 +62,8 @@ static unsigned faad_log_enable = 0;
 #define faad_log_info(arg...) do{;}while(0)
 #endif
 static int latm_payload[5]; //use for latm frame size count
+static int  last_sf_index = -1;
+static int last_ch_configure = -1;
 /* static function declarations */
 static void* aac_frame_decode(NeAACDecStruct *hDecoder,
                               NeAACDecFrameInfo *hInfo,
@@ -327,13 +328,15 @@ long NEAACDECAPI NeAACDecInit(NeAACDecHandle hpDecoder,
         faad_rewindbits(&ld);
         if(is_latm && l->ASCbits>0)
         {
-            int32_t x;
+            INT32_T x;
             hDecoder->latm_header_present = 1;
             x = NeAACDecInit2(hDecoder, l->ASC, (l->ASCbits+7)/8, samplerate, channels);
             if(x!=0)
                 hDecoder->latm_header_present = 0;
+#ifdef SBR_DEC			
     	   if(hDecoder->sbr_present_flag == 1 && *samplerate > 24000)
-    		*samplerate /= 2;                
+    		*samplerate /= 2;               
+#endif		   
             return x;
         } //else
 #endif
@@ -369,7 +372,8 @@ long NEAACDECAPI NeAACDecInit(NeAACDecHandle hpDecoder,
 
             hDecoder->sf_index = adts.sf_index;
             hDecoder->object_type = adts.profile + 1;
-
+	     last_sf_index = hDecoder->sf_index;
+	     last_ch_configure = adts.channel_configuration;
             *samplerate = get_sample_rate(hDecoder->sf_index);
             *channels = (adts.channel_configuration > 6) ?
                 2 : adts.channel_configuration;
@@ -399,6 +403,8 @@ long NEAACDECAPI NeAACDecInit(NeAACDecHandle hpDecoder,
 					    }	
 				            hDecoder->sf_index = adts.sf_index;
 				            hDecoder->object_type = adts.profile + 1;
+	     					last_sf_index = hDecoder->sf_index;
+	     					last_ch_configure = adts.channel_configuration;
 					
 				            *samplerate = get_sample_rate(hDecoder->sf_index);
 				            if(*samplerate > 48000 || adts.channel_configuration > 6){
@@ -425,7 +431,7 @@ long NEAACDECAPI NeAACDecInit(NeAACDecHandle hpDecoder,
         faad_endbits(&ld);
     }
 
-#if 0//(defined(PS_DEC) || defined(DRM_PS))
+#if (defined(PS_DEC) || defined(DRM_PS))
     /* check if we have a mono file */
     if (*channels == 1)
     {
@@ -511,7 +517,7 @@ char NEAACDECAPI NeAACDecInit2(NeAACDecHandle hpDecoder,
         *channels = hDecoder->pce.channels;
         hDecoder->pce_set = 1;
     }
-#if  0//(defined(PS_DEC) || defined(DRM_PS))
+#if (defined(PS_DEC) || defined(DRM_PS))
     /* check if we have a mono file */
     if (*channels == 1)
     {
@@ -1217,7 +1223,7 @@ static void* aac_frame_decode(NeAACDecStruct *hDecoder,
     if ((hDecoder->sample_buffer == NULL) ||
         (hDecoder->alloced_channels != output_channels))
     {
-        static const uint8_t str[] = { sizeof(int16_t), sizeof(int32_t), sizeof(int32_t),
+        static const uint8_t str[] = { sizeof(int16_t), sizeof(INT32_T), sizeof(INT32_T),
             sizeof(float32_t), sizeof(double), sizeof(int16_t), sizeof(int16_t),
             sizeof(int16_t), sizeof(int16_t), 0, 0, 0
         };
@@ -1491,7 +1497,15 @@ static void* aac_frame_decode(NeAACDecStruct *hDecoder,
         adts.old_format = hDecoder->config.useOldADTSFormat;
         if ((hInfo->error = adts_frame(&adts, &ld)) > 0)
             goto error;
-
+	hDecoder->sf_index = adts.sf_index;	
+	if(adts.sf_index != last_sf_index && adts.channel_configuration != last_ch_configure){
+		hInfo->error = 34;
+     	 	audio_codec_print("	last sf_index %d,ch %d,now %d %d\n",last_sf_index,last_ch_configure,adts.sf_index,adts.channel_configuration);		
+		last_sf_index = hDecoder->sf_index;
+		last_ch_configure = adts.channel_configuration;	
+		goto error;
+	}	
+					
         /* MPEG2 does byte_alignment() here,
          * but ADTS header is always multiple of 8 bits in MPEG2
          * so not needed to actually do it.
@@ -1575,6 +1589,9 @@ static void* aac_frame_decode(NeAACDecStruct *hDecoder,
 		if (channels == 6){
 			output_channels = 2;
 		}
+		else if (channels == 4){
+			output_channels = 2;
+		}
 		else{
 			output_channels = channels;
 		}
@@ -1629,7 +1646,7 @@ static void* aac_frame_decode(NeAACDecStruct *hDecoder,
     if ((hDecoder->sample_buffer == NULL) ||
         (hDecoder->alloced_channels != output_channels))
     {
-        static const uint8_t str[] = { sizeof(int16_t), sizeof(int32_t), sizeof(int32_t),
+        static const uint8_t str[] = { sizeof(int16_t), sizeof(INT32_T), sizeof(INT32_T),
             sizeof(float32_t), sizeof(double), sizeof(int16_t), sizeof(int16_t),
             sizeof(int16_t), sizeof(int16_t), 0, 0, 0
         };

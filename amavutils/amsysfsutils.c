@@ -31,7 +31,7 @@ int amsysfs_set_sysfs_str(const char *path, const char *val)
         close(fd);
         return 0;
     } else {
-        LOGE("unable to open file %s,err: %s", path, strerror(errno));
+        //LOGE("unable to open file %s,err: %s", path, strerror(errno));
     }
     return -1;
 }
@@ -45,7 +45,7 @@ int  amsysfs_get_sysfs_str(const char *path, char *valstr, int size)
         valstr[strlen(valstr)] = '\0';
         close(fd);
     } else {
-        LOGE("unable to open file %s,err: %s", path, strerror(errno));
+        //LOGE("unable to open file %s,err: %s", path, strerror(errno));
         sprintf(valstr, "%s", "fail");
         return -1;
     };
@@ -65,7 +65,7 @@ int amsysfs_set_sysfs_int(const char *path, int val)
         close(fd);
         return 0;
     } else {
-        LOGE("unable to open file %s,err: %s", path, strerror(errno));
+        //LOGE("unable to open file %s,err: %s", path, strerror(errno));
     }
     return -1;
 }
@@ -81,7 +81,7 @@ int amsysfs_get_sysfs_int(const char *path)
         val = strtol(bcmd, NULL, 10);
         close(fd);
     }else {
-        LOGE("unable to open file %s,err: %s", path, strerror(errno));
+        //LOGE("unable to open file %s,err: %s", path, strerror(errno));
     }
     return val;
 }
@@ -98,7 +98,7 @@ int amsysfs_set_sysfs_int16(const char *path, int val)
         close(fd);
         return 0;
     } else {
-        LOGE("unable to open file %s,err: %s", path, strerror(errno));
+        //LOGE("unable to open file %s,err: %s", path, strerror(errno));
     }
     
     return -1;
@@ -115,7 +115,7 @@ int amsysfs_get_sysfs_int16(const char *path)
         val = strtol(bcmd, NULL, 16);
         close(fd);
     } else {
-        LOGE("unable to open file %s,err: %s", path, strerror(errno));
+        //LOGE("unable to open file %s,err: %s", path, strerror(errno));
     }
     return val;
 }
@@ -130,7 +130,7 @@ unsigned long amsysfs_get_sysfs_ulong(const char *path)
     	num = strtoul(bcmd, NULL, 0);
     	close(fd);
 	} else {
-        LOGE("unable to open file %s,err: %s", path, strerror(errno));
+        //LOGE("unable to open file %s,err: %s", path, strerror(errno));
     }
 	return num;
 }

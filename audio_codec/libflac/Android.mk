@@ -10,7 +10,7 @@ include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
-LOCAL_SHARED_LIBRARIES += libutils libmedia libz libbinder libdl libcutils libc libavutil
+LOCAL_SHARED_LIBRARIES += libutils libmedia libz libbinder libdl libcutils libc 
 
 LOCAL_MODULE    := libflac
 LOCAL_SRC_FILES := $(notdir $(wildcard $(LOCAL_PATH)/*.c))

@@ -40,7 +40,14 @@ extern "C" {
 #endif
 
 #include "neaacdec.h"
-
+#ifdef ANDROID
+#include <android/log.h>
+#define  LOG_TAG    "FaadDecoder"
+#define audio_codec_print(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#else   
+#define  audio_codec_print  printf
+#endif
+#define printk audio_codec_print 
 #if 1
 #define INLINE __inline
 #else
@@ -175,7 +182,7 @@ typedef unsigned __int32 uint32_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int8 uint8_t;
 typedef signed __int64 int64_t;
-typedef signed __int32 int32_t;
+typedef signed __int32 INT32_T;
 typedef signed __int16 int16_t;
 typedef signed __int8  int8_t;
 typedef float float32_t;
@@ -216,15 +223,20 @@ typedef float float32_t;
 /* we need these... */
 #ifndef __TCS__
 typedef unsigned long long uint64_t;
+#if defined(__arm__) //32
 typedef signed long long int64_t;
+#elif defined(__aarch64__) //64
+#endif
 #else
 typedef unsigned long uint64_t;
 typedef signed long int64_t;
 #endif
-typedef unsigned long uint32_t;
+//typedef unsigned long uint32_t;
+typedef unsigned int uint32_t;
 typedef unsigned short uint16_t;
 typedef unsigned char uint8_t;
-typedef signed long int32_t;
+//typedef signed long INT32_T;
+typedef signed int INT32_T;
 typedef signed short int16_t;
 typedef signed char int8_t;
 # endif
@@ -396,7 +408,7 @@ char *strchr(), *strrchr();
 
 #ifndef HAS_LRINTF
 /* standard cast */
-#define lrintf(f) ((int32_t)(f))
+#define lrintf(f) ((INT32_T)(f))
 #endif
 
 typedef real_t complex_t[2];
@@ -410,9 +422,9 @@ uint32_t ne_rng(uint32_t *__r1, uint32_t *__r2);
 uint32_t wl_min_lzc(uint32_t x);
 #ifdef FIXED_POINT
 #define LOG2_MIN_INF REAL_CONST(-10000)
-int32_t log2_int(uint32_t val);
-int32_t log2_fix(uint32_t val);
-int32_t pow2_int(real_t val);
+INT32_T log2_int(uint32_t val);
+INT32_T log2_fix(uint32_t val);
+INT32_T pow2_int(real_t val);
 real_t pow2_fix(real_t val);
 #endif
 uint8_t get_sr_index(const uint32_t samplerate);

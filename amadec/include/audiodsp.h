@@ -30,7 +30,6 @@ ADEC_BEGIN_DECLS
 #define AUDIODSP_WAIT_FORMAT                 _IOW('a',11,long)
 
 #define AUDIODSP_SKIP_BYTES                     _IOW('a', 13, unsigned long)
-
 #define AUDIODSP_GET_CHANNELS_NUM           _IOR('r',1,long)
 #define AUDIODSP_GET_SAMPLERATE             _IOR('r',2,long)
 #define AUDIODSP_GET_BITS_PER_SAMPLE            _IOR('r',3,long)
@@ -58,7 +57,6 @@ ADEC_BEGIN_DECLS
 #define AUDIODSP_WAIT_FORMAT                 _IOW('a',11,long)
 
 #define AUDIODSP_SKIP_BYTES                     _IOW('a', 13, unsigned long)
-
 
 #define AUDIODSP_GET_CHANNELS_NUM           _IOR('r',1,sizeof(long))
 #define AUDIODSP_GET_SAMPLERATE             _IOR('r',2,sizeof(long))

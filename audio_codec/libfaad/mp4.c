@@ -28,6 +28,7 @@
 ** $Id: mp4.c,v 1.40 2009/02/06 03:39:58 menno Exp $
 **/
 #include <stdlib.h>
+#include <memory.h>
 #include "common.h"
 #include "structs.h"
 

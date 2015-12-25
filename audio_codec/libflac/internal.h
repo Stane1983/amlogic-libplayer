@@ -23,8 +23,8 @@
  * common internal API header
  */
 
-#ifndef AVUTIL_INTERNAL_H
-#define AVUTIL_INTERNAL_H
+#ifndef LIBFLAC_INTERNAL_H
+#define LIBFLAC_INTERNAL_H
 
 #if !defined(DEBUG) && !defined(NDEBUG)
 #    define NDEBUG
@@ -110,7 +110,7 @@ extern const uint32_t ff_inverse[257];
 #else
 #define FASTDIV(a,b)   ((a) / (b))
 #endif
-
+#if 0
 extern const uint8_t ff_sqrt_tab[256];
 
 static inline av_const unsigned int ff_sqrt(unsigned int a)
@@ -132,7 +132,7 @@ static inline av_const unsigned int ff_sqrt(unsigned int a)
 
     return b - (a < b * b);
 }
-
+#endif
 #if ARCH_X86
 #define MASK_ABS(mask, level)\
             __asm__ volatile(\

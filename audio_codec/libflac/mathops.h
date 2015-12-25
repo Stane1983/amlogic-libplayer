@@ -19,8 +19,8 @@
  * License along with FFmpeg; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-#ifndef AVCODEC_MATHOPS_H
-#define AVCODEC_MATHOPS_H
+#ifndef LIBFLAC_MATHOPS_H
+#define LIBFLAC_MATHOPS_H
 
 #include "common.h"
 #include "internal.h"
@@ -34,7 +34,6 @@
 #ifndef MULH
 //gcc 3.4 creates an incredibly bloated mess out of this
 //#    define MULH(a,b) (((int64_t)(a) * (int64_t)(b))>>32)
-
 static av_always_inline int MULH(int a, int b){
     return ((int64_t)(a) * (int64_t)(b))>>32;
 }

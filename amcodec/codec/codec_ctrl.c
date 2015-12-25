@@ -40,14 +40,14 @@
 */
 /* --------------------------------------------------------------------------*/
 static int codec_set_demux_source(codec_para_t *pcodec, int source)
-{    
-    int ret = 0;		
-	
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_SET_DEMUX, (unsigned long)source);
-	if (ret < 0) {
-		return ret;
-	}	
-    return ret;     
+{
+    int ret = 0;
+
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_DEMUX, (unsigned long)source);
+    if (ret < 0) {
+        return ret;
+    }
+    return ret;
 }
 
 /* --------------------------------------------------------------------------*/
@@ -63,13 +63,13 @@ static int codec_change_buf_size(codec_para_t *pcodec)
 {
     int r;
     if (pcodec->abuf_size > 0) {
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_AB_SIZE, pcodec->abuf_size);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_AB_SIZE, pcodec->abuf_size);
         if (r < 0) {
             return system_error_to_codec_error(r);
         }
     }
     if (pcodec->vbuf_size > 0) {
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_VB_SIZE, pcodec->vbuf_size);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_VB_SIZE, pcodec->vbuf_size);
         if (r < 0) {
             return system_error_to_codec_error(r);
         }
@@ -94,9 +94,9 @@ static  int set_video_format(codec_para_t *pcodec)
         return -CODEC_ERROR_VIDEO_TYPE_UNKNOW;
     }
 
-    r = codec_h_control(pcodec->handle, AMSTREAM_IOC_VFORMAT, format);
+    r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_VFORMAT, format);
     if (pcodec->video_pid >= 0) {
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_VID, pcodec->video_pid);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_VID, pcodec->video_pid);
         if (r < 0) {
             return system_error_to_codec_error(r);
         }
@@ -146,14 +146,14 @@ static  int set_audio_format(codec_para_t *pcodec)
         return -CODEC_ERROR_AUDIO_TYPE_UNKNOW;
     }
 
-    r = codec_h_control(pcodec->handle, AMSTREAM_IOC_AFORMAT, format);
+    r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_AFORMAT, format);
     if (r < 0) {
         codec_r = system_error_to_codec_error(r);
         print_error_msg(codec_r, errno, __FUNCTION__, __LINE__);
         return codec_r;
     }
     if (pcodec->audio_pid >= 0) {
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_AID, pcodec->audio_pid);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_AID, pcodec->audio_pid);
         if (r < 0) {
             codec_r = system_error_to_codec_error(r);
             print_error_msg(codec_r, errno, __FUNCTION__, __LINE__);
@@ -161,7 +161,7 @@ static  int set_audio_format(codec_para_t *pcodec)
         }
     }
     if (pcodec->audio_samplerate > 0) {
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_SAMPLERATE, pcodec->audio_samplerate);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_SAMPLERATE, pcodec->audio_samplerate);
         if (r < 0) {
             codec_r = system_error_to_codec_error(r);
             print_error_msg(codec_r, errno, __FUNCTION__, __LINE__);
@@ -169,7 +169,7 @@ static  int set_audio_format(codec_para_t *pcodec)
         }
     }
     if (pcodec->audio_channels > 0) {
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_ACHANNEL, pcodec->audio_channels);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_ACHANNEL, pcodec->audio_channels);
         if (r < 0) {
             codec_r = system_error_to_codec_error(r);
             print_error_msg(codec_r, errno, __FUNCTION__, __LINE__);
@@ -194,7 +194,7 @@ static int set_audio_info(codec_para_t *pcodec)
     int codec_r;
     audio_info_t *audio_info = &pcodec->audio_info;
     CODEC_PRINT("set_audio_info\n");
-    r = codec_h_control(pcodec->handle, AMSTREAM_IOC_AUDIO_INFO, (unsigned long)audio_info);
+    r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET_PTR, AMSTREAM_SET_PTR_AUDIO_INFO, (unsigned long)audio_info);
     if (r < 0) {
         codec_r = system_error_to_codec_error(r);
         print_error_msg(codec_r, errno, __FUNCTION__, __LINE__);
@@ -217,12 +217,12 @@ static int set_sub_format(codec_para_t *pcodec)
     int r;
 
     if (pcodec->sub_pid >= 0) {
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_SID, pcodec->sub_pid);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_SID, pcodec->sub_pid);
         if (r < 0) {
             return system_error_to_codec_error(r);
         }
 
-        r = codec_h_control(pcodec->handle, AMSTREAM_IOC_SUB_TYPE, pcodec->sub_type);
+        r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_SUB_TYPE, pcodec->sub_type);
         if (r < 0) {
             return system_error_to_codec_error(r);
         }
@@ -250,12 +250,34 @@ static int set_ts_skip_byte(codec_para_t *pcodec)
         skip_byte = 0;
     }
 
-    r = codec_h_control(pcodec->handle, AMSTREAM_IOC_TS_SKIPBYTE, skip_byte);
+    r = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_TS_SKIPBYTE, skip_byte);
     if (r < 0) {
         return system_error_to_codec_error(r);
     }
 
     return 0;
+}
+/* --------------------------------------------------------------------------*/
+/**
+* @brief  codec_check_new_cmd  Check new cmd for ioctl
+*
+*/
+/* --------------------------------------------------------------------------*/
+static inline void codec_check_new_cmd(CODEC_HANDLE handle)
+{
+    if (!codec_h_is_support_new_cmd()) {
+        int r;
+        int version = 0;
+        r = codec_h_control(handle, AMSTREAM_IOC_GET_VERSION, &version);
+        if ((r == 0) && (version >= 0x20000)) {
+            CODEC_PRINT("codec_init amstream version : %d.%d\n", (version & 0xffff0000) >> 16, version & 0xffff);
+            codec_h_set_support_new_cmd(1);
+        } else {
+            CODEC_PRINT("codec_init amstream use old cmd\n");
+            codec_h_set_support_new_cmd(0);
+        }
+
+    }
 }
 
 /* --------------------------------------------------------------------------*/
@@ -278,18 +300,24 @@ static inline int codec_video_es_init(codec_para_t *pcodec)
     }
 
     flags |= pcodec->noblock ? O_NONBLOCK : 0;
-    if(pcodec->am_sysinfo.format == VIDEO_DEC_FORMAT_HEVC) {
+    if(pcodec->video_type == VFORMAT_HEVC) {
+		printf("OPEN es hevc\n");
       handle = codec_h_open(CODEC_VIDEO_ES_HEVC_DEVICE, flags);
     }
     else {
+		CODEC_PRINT("OPEN es DEVICE\n");
       handle = codec_h_open(CODEC_VIDEO_ES_DEVICE, flags);
     }
+    
     if (handle < 0) {
         codec_r = system_error_to_codec_error(handle);
         print_error_msg(codec_r, errno, __FUNCTION__, __LINE__);
         return CODEC_OPEN_HANDLE_FAILED;
     }
     pcodec->handle = handle;
+
+    codec_check_new_cmd(handle);
+
     r = set_video_format(pcodec);
     if (r < 0) {
         codec_h_close(handle);
@@ -335,6 +363,9 @@ static inline int codec_audio_es_init(codec_para_t *pcodec)
         return CODEC_OPEN_HANDLE_FAILED;
     }
     pcodec->handle = handle;
+
+    codec_check_new_cmd(handle);
+
     r = set_audio_format(pcodec);
     if (r < 0) {
         codec_h_close(handle);
@@ -424,13 +455,17 @@ static inline int codec_ps_init(codec_para_t *pcodec)
         return CODEC_OPEN_HANDLE_FAILED;
     }
     pcodec->handle = handle;
+
+    codec_check_new_cmd(handle);
+
     if (pcodec->has_video) {
         r = set_video_format(pcodec);
         if (r < 0) {
             goto error1;
         }
         if ((pcodec->video_type == VFORMAT_H264)
-            || (pcodec->video_type == VFORMAT_VC1)){
+            || (pcodec->video_type == VFORMAT_VC1)
+            || (pcodec->video_type == VFORMAT_MPEG12)) {
             r = set_video_codec_info(pcodec);
             if (r < 0) {
                 /*codec_h_close(handle);
@@ -509,13 +544,16 @@ static inline int codec_ts_init(codec_para_t *pcodec)
         return CODEC_OPEN_HANDLE_FAILED;
     }
     pcodec->handle = handle;
+
+    codec_check_new_cmd(handle);
+
     codec_set_demux_source(pcodec, DEMUX_PLAYER_SOURCE);
     if (pcodec->has_video) {
         r = set_video_format(pcodec);
         if (r < 0) {
             goto error1;
         }
-        if ((pcodec->video_type == VFORMAT_H264) || (pcodec->video_type == VFORMAT_VC1)|| (pcodec->video_type == VFORMAT_AVS)) {
+        if ((pcodec->video_type == VFORMAT_H264) || (pcodec->video_type == VFORMAT_MPEG4) || (pcodec->video_type == VFORMAT_VC1) || (pcodec->video_type == VFORMAT_AVS) || (pcodec->video_type == VFORMAT_MPEG12)) {
             r = set_video_codec_info(pcodec);
             if (r < 0) {
                 codec_h_close(handle);
@@ -598,6 +636,9 @@ static inline int codec_rm_init(codec_para_t *pcodec)
     }
 
     pcodec->handle = handle;
+
+    codec_check_new_cmd(handle);
+
     if (pcodec->has_video) {
         r = set_video_format(pcodec);
         if (r < 0) {
@@ -646,6 +687,9 @@ int codec_init(codec_para_t *pcodec)
     pcodec->cntl_handle = -1;
     pcodec->sub_handle = -1;
     pcodec->audio_utils_handle = -1;
+    if (pcodec->audio_type == AFORMAT_MPEG1 || pcodec->audio_type == AFORMAT_MPEG2) {
+        pcodec->audio_type = AFORMAT_MPEG;
+    }
     switch (pcodec->stream_type) {
     case STREAM_TYPE_ES_VIDEO:
         ret = codec_video_es_init(pcodec);
@@ -680,11 +724,13 @@ int codec_init(codec_para_t *pcodec)
     if (ret != 0) {
         return -CODEC_ERROR_SET_BUFSIZE_FAILED;
     }
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_PORT_INIT, 0);
+
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_PORT_INIT, 0);
     if (ret != 0) {
 
         return -CODEC_ERROR_INIT_FAILED;
     }
+    
     if (pcodec->has_audio) {
         arm_audio_info a_ainfo;
         memset(&a_ainfo,0,sizeof(arm_audio_info));
@@ -700,7 +746,7 @@ int codec_init(codec_para_t *pcodec)
         a_ainfo.codec_id   =pcodec->audio_info.codec_id;
         if(IS_AUIDO_NEED_EXT_INFO(pcodec->audio_type))
         {
-            if(pcodec->audio_type!=AFORMAT_WMA && pcodec->audio_type!=AFORMAT_WMAPRO)
+            if (pcodec->audio_type != AFORMAT_WMA && pcodec->audio_type != AFORMAT_WMAPRO && pcodec->audio_type != AFORMAT_WMAVOI)
             {
                  a_ainfo.extradata_size=pcodec->audio_info.extradata_size;
                  if(a_ainfo.extradata_size>0&&a_ainfo.extradata_size<=AUDIO_EXTRA_DATA_SIZE)
@@ -883,7 +929,7 @@ void codec_resume_audio(codec_para_t *pcodec, unsigned int orig)
 int codec_checkin_pts(codec_para_t *pcodec, unsigned long pts)
 {
     //CODEC_PRINT("[%s:%d]pts=%x(%d)\n",__FUNCTION__,__LINE__,pts,pts/90000);
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_TSTAMP, pts);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_TSTAMP, pts);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -899,9 +945,15 @@ int codec_checkin_pts(codec_para_t *pcodec, unsigned long pts)
 int codec_get_vbuf_state(codec_para_t *p, struct buf_status *buf)
 {
     int r;
-    struct am_io_param am_io;
-    r = codec_h_control(p->handle, AMSTREAM_IOC_VB_STATUS, (unsigned long)&am_io);
-    memcpy(buf, &am_io.status, sizeof(*buf));
+    if(codec_h_is_support_new_cmd()) {
+        struct buf_status status;
+        r = codec_h_ioctl(p->handle, AMSTREAM_IOC_GET_EX, AMSTREAM_GET_EX_VB_STATUS, (unsigned long)&status);
+        memcpy(buf, &status, sizeof(*buf));
+    } else {
+        struct am_io_param am_io;
+        r = codec_h_control(p->handle, AMSTREAM_IOC_VB_STATUS, (unsigned long)&am_io);
+        memcpy(buf, &am_io.status, sizeof(*buf));
+    }
     return system_error_to_codec_error(r);
 }
 /* --------------------------------------------------------------------------*/
@@ -917,9 +969,15 @@ int codec_get_vbuf_state(codec_para_t *p, struct buf_status *buf)
 int codec_get_abuf_state(codec_para_t *p, struct buf_status *buf)
 {
     int r;
-    struct am_io_param am_io;
-    r = codec_h_control(p->handle, AMSTREAM_IOC_AB_STATUS, (unsigned long)&am_io);
-    memcpy(buf, &am_io.status, sizeof(*buf));
+    if(codec_h_is_support_new_cmd()) {
+        struct buf_status status;
+        r = codec_h_ioctl(p->handle, AMSTREAM_IOC_GET_EX, AMSTREAM_GET_EX_AB_STATUS, (unsigned long)&status);
+        memcpy(buf, &status, sizeof(*buf));
+    } else {
+        struct am_io_param am_io;
+        r = codec_h_control(p->handle, AMSTREAM_IOC_AB_STATUS, (unsigned long)&am_io);
+        memcpy(buf, &am_io.status, sizeof(*buf));
+    }
     return system_error_to_codec_error(r);
 }
 
@@ -936,12 +994,18 @@ int codec_get_abuf_state(codec_para_t *p, struct buf_status *buf)
 int codec_get_vdec_state(codec_para_t *p, struct vdec_status *vdec)
 {
     int r;
-    struct am_io_param am_io;
-    r = codec_h_control(p->handle, AMSTREAM_IOC_VDECSTAT, (unsigned long)&am_io);
+    if(codec_h_is_support_new_cmd()) {
+        struct vdec_status vstatus;
+        r = codec_h_ioctl(p->handle, AMSTREAM_IOC_GET_EX, AMSTREAM_GET_EX_VDECSTAT, (unsigned long)&vstatus);
+        memcpy(vdec, &vstatus, sizeof(*vdec));
+    } else {
+        struct am_io_param am_io;
+        r = codec_h_control(p->handle, AMSTREAM_IOC_VDECSTAT, (unsigned long)&am_io);
+        memcpy(vdec, &am_io.vstatus, sizeof(*vdec));
+    }
     if (r < 0) {
         CODEC_PRINT("[codec_get_vdec_state]error[%d]: %s\n", r, codec_error_msg(system_error_to_codec_error(r)));
     }
-    memcpy(vdec, &am_io.vstatus, sizeof(*vdec));
     return system_error_to_codec_error(r);
 }
 
@@ -960,11 +1024,20 @@ int codec_get_adec_state(codec_para_t *p, struct adec_status *adec)
     if(get_audio_decoder()!=AUDIO_ARC_DECODER)
 	return get_decoder_status(p->adec_priv,adec);
     int r;
-    struct am_io_param am_io;
-    r = codec_h_control(p->handle, AMSTREAM_IOC_ADECSTAT, (unsigned long)&am_io);
-    if(r == 0){
-        memcpy(adec, &am_io.astatus, sizeof(*adec));
-    }
+    if(codec_h_is_support_new_cmd()) {
+        struct adec_status astatus;
+        r = codec_h_ioctl(p->handle, AMSTREAM_IOC_GET_EX, AMSTREAM_GET_EX_ADECSTAT, (unsigned long)&astatus);
+        if (r == 0) {
+            memcpy(adec, &astatus, sizeof(*adec));
+        }
+    } else {
+        struct am_io_param am_io;
+        r = codec_h_control(p->handle, AMSTREAM_IOC_ADECSTAT, (unsigned long)&am_io);
+        if(r == 0){
+            memcpy(adec, &am_io.astatus, sizeof(*adec));
+        }
+
+    } 
     return system_error_to_codec_error(r);
 }
 
@@ -1219,7 +1292,7 @@ int codec_get_sub_size(codec_para_t *pcodec)
         return 0;
     }
 
-    r = codec_h_control(pcodec->sub_handle, AMSTREAM_IOC_SUB_LENGTH, (unsigned long)&sub_size);
+    r = codec_h_ioctl(pcodec->sub_handle, AMSTREAM_IOC_GET, AMSTREAM_GET_SUB_LENGTH, (unsigned long)&sub_size);
     if (r < 0) {
         return system_error_to_codec_error(r);
     } else {
@@ -1245,7 +1318,7 @@ int codec_get_sub_size_fd(CODEC_HANDLE sub_fd)
         return 0;
     }
 
-    r = codec_h_control(sub_fd, AMSTREAM_IOC_SUB_LENGTH, (unsigned long)&sub_size);
+    r = codec_h_ioctl(sub_fd, AMSTREAM_IOC_GET, AMSTREAM_GET_SUB_LENGTH, (unsigned long)&sub_size);
     if (r < 0) {
         return system_error_to_codec_error(r);
     } else {
@@ -1382,6 +1455,7 @@ int codec_close_cntl(codec_para_t *pcodec)
         if (pcodec->cntl_handle) {
             res = codec_h_control(pcodec->cntl_handle, AMSTREAM_IOC_CLEAR_VIDEO, 0);
             res = codec_h_close(pcodec->cntl_handle);
+		    CODEC_PRINT("[%s]video codec close return=%d!\n", __FUNCTION__,res);
         }
     }
     return res;
@@ -1493,7 +1567,7 @@ int codec_set_cntl_syncthresh(codec_para_t *pcodec, unsigned int syncthresh)
 /* --------------------------------------------------------------------------*/
 int codec_reset_audio(codec_para_t *pcodec)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_AUDIO_RESET, 0);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_AUDIO_RESET, 0);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -1507,7 +1581,7 @@ int codec_reset_audio(codec_para_t *pcodec)
 /* --------------------------------------------------------------------------*/
 int codec_reset_subtile(codec_para_t *pcodec)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SUB_RESET, 0);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SUB_RESET, 0);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -1521,7 +1595,7 @@ int codec_reset_subtile(codec_para_t *pcodec)
 /* --------------------------------------------------------------------------*/
 int codec_set_audio_pid(codec_para_t *pcodec)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_AID, pcodec->audio_pid);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_AID, pcodec->audio_pid);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -1535,7 +1609,7 @@ int codec_set_audio_pid(codec_para_t *pcodec)
 /* --------------------------------------------------------------------------*/
 int codec_set_sub_id(codec_para_t *pcodec)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SID, pcodec->sub_pid);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_SID, pcodec->sub_pid);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -1549,7 +1623,7 @@ int codec_set_sub_id(codec_para_t *pcodec)
 /* --------------------------------------------------------------------------*/
 int codec_set_sub_type(codec_para_t *pcodec)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SUB_TYPE, pcodec->sub_type);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_SUB_TYPE, pcodec->sub_type);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -1582,7 +1656,7 @@ int codec_audio_reinit(codec_para_t *pcodec)
 /* --------------------------------------------------------------------------*/
 int codec_set_dec_reset(codec_para_t *pcodec)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SET_DEC_RESET, 0);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_DEC_RESET, 0);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -1650,8 +1724,8 @@ int codec_get_apts(codec_para_t *pcodec)
         CODEC_PRINT("[%s]ERROR invalid pointer!\n", __FUNCTION__);
         return -1;
     }
-	
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_APTS, (unsigned long)&apts);
+
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_APTS, (unsigned long)&apts);
     if (ret < 0) {
         CODEC_PRINT("[%s]ioctl failed %d\n", __FUNCTION__, ret);
         return -1;
@@ -1678,8 +1752,8 @@ int codec_get_vpts(codec_para_t *pcodec)
         CODEC_PRINT("[%s]ERROR invalid pointer!\n", __FUNCTION__);
         return -1;
     }
-	
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_VPTS, (unsigned long)&vpts);
+
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_VPTS, (unsigned long)&vpts);
     if (ret < 0) {
         CODEC_PRINT("[%s]ioctl failed %d\n", __FUNCTION__, ret);
         return -1;
@@ -1706,8 +1780,8 @@ int codec_get_pcrscr(codec_para_t *pcodec)
         CODEC_PRINT("[%s]ERROR invalid pointer!\n", __FUNCTION__);
         return -1;
     }
-	
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_PCRSCR, (unsigned long)&pcrscr);
+
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_PCRSCR, (unsigned long)&pcrscr);
     if (ret < 0) {
         CODEC_PRINT("[%s]ioctl failed %d\n", __FUNCTION__, ret);
         return -1;
@@ -1735,8 +1809,8 @@ int codec_set_pcrscr(codec_para_t *pcodec, int val)
         CODEC_PRINT("[%s]ERROR invalid pointer!\n", __FUNCTION__);
         return -1;
     }
-	
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_SET_PCRSCR, val);
+
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_PCRSCR, val);
     if (ret < 0) {
         CODEC_PRINT("[%s]ioctl failed %d\n", __FUNCTION__, ret);
         return -1;
@@ -1918,7 +1992,7 @@ int codec_get_sub_num(codec_para_t *pcodec)
     int sub_num = 0;
     int ret;
 
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_SUB_NUM, (unsigned long)&sub_num);
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_SUB_NUM, (unsigned long)&sub_num);
     if (ret < 0) {
         return ret;
     }
@@ -1938,17 +2012,17 @@ int codec_get_sub_num(codec_para_t *pcodec)
 int codec_get_sub_info(codec_para_t *pcodec, subtitle_info_t *sub_info)
 {    
     int ret = 0;
-	int i;		
-	if (!sub_info) {
-		CODEC_PRINT("[codec_get_sub_info] error, NULL pointer!\n");
-		ret = CODEC_ERROR_INVAL;
-		return ret;
-	}
-    ret = codec_h_control(pcodec->handle, AMSTREAM_IOC_SUB_INFO, (unsigned long)sub_info);
-	if (ret < 0) {
-		return ret;
-	}	
-    return ret;     
+    int i;
+    if (!sub_info) {
+        CODEC_PRINT("[codec_get_sub_info] error, NULL pointer!\n");
+        ret = CODEC_ERROR_INVAL;
+        return ret;
+    }
+    ret = codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET_PTR, AMSTREAM_GET_PTR_SUB_INFO, (unsigned long)sub_info);
+    if (ret < 0) {
+        return ret;
+    }
+    return ret;
 }
 
 /********************************************************************************
@@ -2118,7 +2192,7 @@ int codec_set_audio_resample_type(codec_para_t *pcodec, unsigned long type)
 /* --------------------------------------------------------------------------*/
 int codec_set_video_delay_limited_ms(codec_para_t *pcodec,int delay_ms)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SET_VIDEO_DELAY_LIMIT_MS, delay_ms);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_VIDEO_DELAY_LIMIT_MS, delay_ms);
 }
 /* --------------------------------------------------------------------------*/
 /**
@@ -2131,7 +2205,7 @@ int codec_set_video_delay_limited_ms(codec_para_t *pcodec,int delay_ms)
 /* --------------------------------------------------------------------------*/
 int codec_get_video_delay_limited_ms(codec_para_t *pcodec,int *delay_ms)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_VIDEO_DELAY_LIMIT_MS, delay_ms);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_VIDEO_DELAY_LIMIT_MS, delay_ms);
 }
 
 
@@ -2146,7 +2220,7 @@ int codec_get_video_delay_limited_ms(codec_para_t *pcodec,int *delay_ms)
 /* --------------------------------------------------------------------------*/
 int codec_set_audio_delay_limited_ms(codec_para_t *pcodec,int delay_ms)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SET_AUDIO_DELAY_LIMIT_MS, delay_ms);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_AUDIO_DELAY_LIMIT_MS, delay_ms);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -2160,7 +2234,7 @@ int codec_set_audio_delay_limited_ms(codec_para_t *pcodec,int delay_ms)
 /* --------------------------------------------------------------------------*/
 int codec_get_audio_delay_limited_ms(codec_para_t *pcodec,int *delay_ms)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_AUDIO_DELAY_LIMIT_MS, delay_ms);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_AUDIO_DELAY_LIMIT_MS, delay_ms);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -2189,7 +2263,7 @@ int codec_get_audio_cur_delay_ms(codec_para_t *pcodec,int *delay_ms)
 /* --------------------------------------------------------------------------*/
 int codec_get_video_cur_delay_ms(codec_para_t *pcodec,int *delay_ms)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_VIDEO_CUR_DELAY_MS, delay_ms);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_VIDEO_CUR_DELAY_MS, delay_ms);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -2203,7 +2277,7 @@ int codec_get_video_cur_delay_ms(codec_para_t *pcodec,int *delay_ms)
 /* --------------------------------------------------------------------------*/
 int codec_get_video_cur_bitrate(codec_para_t *pcodec,int *bitrate)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_VIDEO_AVG_BITRATE_BPS, bitrate);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_VIDEO_AVG_BITRATE_BPS, bitrate);
 }
 
 
@@ -2218,7 +2292,7 @@ int codec_get_video_cur_bitrate(codec_para_t *pcodec,int *bitrate)
 /* --------------------------------------------------------------------------*/
 int codec_get_audio_cur_bitrate(codec_para_t *pcodec,int *bitrate)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_AUDIO_AVG_BITRATE_BPS, bitrate);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_AUDIO_AVG_BITRATE_BPS, bitrate);
 }
 
 /* --------------------------------------------------------------------------*/
@@ -2237,7 +2311,7 @@ int codec_set_vsync_upint(codec_para_t *pcodec, unsigned int mode)
 }
 int codec_set_drmmode(codec_para_t *pcodec)
 {
-    return codec_h_control(pcodec->handle, AMSTREAM_IOC_SET_DRMMODE, 0);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_SET, AMSTREAM_SET_DRMMODE, 0);
 }
 
 /**
@@ -2246,12 +2320,12 @@ int codec_set_drmmode(codec_para_t *pcodec)
  */
 int codec_get_last_checkout_apts(codec_para_t* pcodec, unsigned long *apts)
 {
-  return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_LAST_CHECKOUT_APTS, apts);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_LAST_CHECKOUT_APTS, apts);
 }
 
 int codec_get_last_checkin_apts(codec_para_t* pcodec, unsigned long* apts)
 {
-  return codec_h_control(pcodec->handle, AMSTREAM_IOC_GET_LAST_CHECKIN_APTS, apts);
+    return codec_h_ioctl(pcodec->handle, AMSTREAM_IOC_GET, AMSTREAM_GET_LAST_CHECKIN_APTS, apts);
 }
 
 /**
@@ -2275,4 +2349,9 @@ int codec_set_skip_bytes(codec_para_t* pcodec, unsigned int bytes)
 int codec_get_dsp_apts(codec_para_t* pcodec, unsigned int * apts)
 {
   return audio_get_pts(pcodec->adec_priv, apts);
+}
+/*add for gstreamer fast/slow forward*/
+int codec_set_video_playrate(codec_para_t* pcodec, int rate)
+{
+    return codec_h_control(pcodec->cntl_handle, AMSTREAM_IOC_SET_PLAYRATE, (unsigned long)rate);
 }

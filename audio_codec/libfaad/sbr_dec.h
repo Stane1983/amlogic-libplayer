@@ -119,12 +119,12 @@ typedef struct
     real_t E_orig[2][64][MAX_L_E];
 #endif
     real_t E_curr[2][64][MAX_L_E];
-    int32_t Q[2][64][2];
+    INT32_T Q[2][64][2];
 #ifndef FIXED_POINT
     real_t Q_div[2][64][2];
     real_t Q_div2[2][64][2];
 #endif
-    int32_t Q_prev[2][64];
+    INT32_T Q_prev[2][64];
 
     int8_t l_A[2];
     int8_t l_A_prev[2];

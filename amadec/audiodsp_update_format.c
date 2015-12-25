@@ -91,18 +91,18 @@ static int audiodsp_set_pcm_resample_enable(unsigned long enable)
 
 void adec_reset_track(aml_audio_dec_t *audec)
 {
-	if(audec->format_changed_flag && audec->state >= INITTED){
-		adec_print("reset audio_track: samplerate=%d channels=%d\n", audec->samplerate,audec->channels);
+    if(audec->format_changed_flag && audec->state >= INITTED){
+        adec_print("reset audio_track: samplerate=%d channels=%d\n", audec->samplerate,audec->channels);
         audio_out_operations_t *out_ops = &audec->aout_ops;
-		out_ops->mute(audec, 1);
-		out_ops->pause(audec);
+        out_ops->mute(audec, 1);
+		//out_ops->pause(audec);//otherwise will block indefinitely at the writei_func in func pcm_write
         out_ops->stop(audec);
-		//audec->SessionID +=1;
+        //audec->SessionID +=1;
         out_ops->init(audec);
-		if(audec->state == ACTIVE)
+        if(audec->state == ACTIVE)
         	out_ops->start(audec);
-	    audec->format_changed_flag=0;
-	}
+        audec->format_changed_flag=0;
+    }
 }
 
 int audiodsp_format_update(aml_audio_dec_t *audec)
@@ -116,38 +116,37 @@ int audiodsp_format_update(aml_audio_dec_t *audec)
         return ret;
     }
 	
-	ret=0;
-	if(1/*audiodsp_get_format_changed_flag()*/)
-	{
-         ioctl(dsp_ops->dsp_file_fd, AUDIODSP_GET_CHANNELS_NUM, &val);
-         if (val != (unsigned long) - 1) {
-		    if( audec->channels != val){
-			   //adec_print("dsp_format_update: pre_channels=%d  cur_channels=%d\n", audec->channels,val);
-               audec->channels = val;
-		       ret=1;
-		    }
-         }
+    ret=0;
+    if(1/*audiodsp_get_format_changed_flag()*/)
+    {
+        ioctl(dsp_ops->dsp_file_fd, AUDIODSP_GET_CHANNELS_NUM, &val);
+        if (val != (unsigned long) - 1) {
+            if( audec->channels != val){
+                //adec_print("dsp_format_update: pre_channels=%d  cur_channels=%d\n", audec->channels,val);
+                audec->channels = val;
+                ret=1;
+            }
+        }
 
          ioctl(dsp_ops->dsp_file_fd, AUDIODSP_GET_SAMPLERATE, &val);
          if (val != (unsigned long) - 1) {
-		     if(audec->samplerate != val){
-			    //adec_print("dsp_format_update: pre_samplerate=%d  cur_samplerate=%d\n", audec->samplerate,val);
+            if(audec->samplerate != val){
+                //adec_print("dsp_format_update: pre_samplerate=%d  cur_samplerate=%d\n", audec->samplerate,val);
                 audec->samplerate = val;
-		        ret=2;
-		     }
+                ret=2;
+            }
          }
          #if 1
          ioctl(dsp_ops->dsp_file_fd, AUDIODSP_GET_BITS_PER_SAMPLE, &val);
          if (val != (unsigned long) - 1) {
-		     if(audec->data_width != val){
-		        //adec_print("dsp_format_update: pre_data_width=%d  cur_data_width=%d\n", audec->data_width,val);
+            if(audec->data_width != val){
+                //adec_print("dsp_format_update: pre_data_width=%d  cur_data_width=%d\n", audec->data_width,val);
                 audec->data_width = val;
-		        ret=3;
-		     }
-         }
-		 #endif
-		//audiodsp_set_format_changed_flag(0);
-        
+                ret=3;
+            }
+        }
+        #endif
+		//audiodsp_set_format_changed_flag(0);        
         if (am_getconfig_bool("media.libplayer.wfd")) {
 	    ret = ioctl(dsp_ops->dsp_file_fd, AUDIODSP_GET_PCM_LEVEL, &val);
             if (ret == 0) {
@@ -158,11 +157,11 @@ int audiodsp_format_update(aml_audio_dec_t *audec)
                 }
             } 
         }
-	}
-	if(ret>0){
-	    audec->format_changed_flag=ret;
-	    adec_print("dsp_format_update: audec->format_changed_flag = %d \n", audec->format_changed_flag); 
-	}
+    }
+    if(ret>0){
+        audec->format_changed_flag=ret;
+        adec_print("dsp_format_update: audec->format_changed_flag = %d \n", audec->format_changed_flag); 
+    }
     return ret;
 }
 

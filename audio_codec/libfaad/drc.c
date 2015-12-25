@@ -28,10 +28,10 @@
 ** $Id: drc.c,v 1.28 2007/11/01 12:33:30 menno Exp $
 **/
 #include <stdlib.h>
+//#include <string.h>
+#include <memory.h>
 #include "common.h"
 #include "structs.h"
-
-#include <string.h>
 #include "syntax.h"
 #include "drc.h"
 
@@ -113,7 +113,7 @@ void drc_decode(drc_info *drc, real_t *spec)
 {
     uint16_t i, bd, top;
 #ifdef FIXED_POINT
-    int32_t exp, frac;
+    INT32_T exp, frac;
 #else
     real_t factor, exp;
 #endif

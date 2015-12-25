@@ -118,7 +118,7 @@ int url_lpopen(URLContext *s,int size)
 		if(ret>=0 && value>=1024){
 			failedsize=(int)value;
 		}
-		lp_sprint( AV_LOG_INFO,"malloc buf failed,used failed size=%d\n",failedsize);
+		lp_sprint( AV_LOG_INFO,"malloc buf failed,used failed size=%d\n",failedsize);
 		lp->buffer=av_malloc(failedsize);	
 		while(!lp->buffer){
 			failedsize=failedsize/2;
@@ -471,7 +471,7 @@ int64_t url_lpseek(URLContext *s, int64_t offset, int whence)
 				offset=ret;/*get error,exit now*/
 				break;
 			}
-		}
+		}
 		lp_lock(&lp->mutex);
 	}else
 	{/*not support in buffer seek,do low level seek now*/

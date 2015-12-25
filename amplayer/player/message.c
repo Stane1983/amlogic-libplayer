@@ -223,7 +223,7 @@ int update_player_states(play_para_t *para, int force)
         player_info_t state;
         MEMCPY(&state, &para->state, sizeof(state));
         //if(force == 1)
-        log_print("**[update_state]pid:%d status=%s(last:%s) err=0x%x curtime=%d (ms:%d) fulltime=%d lsttime=%d\n",
+        log_print("**[update_state]pid:%d status=%s(tttlast:%s) err=0x%x curtime=%d (ms:%d) fulltime=%d lsttime=%d\n",
                   para->player_id,
                   player_status2str(state.status),
                   player_status2str(state.last_sta),
@@ -231,7 +231,7 @@ int update_player_states(play_para_t *para, int force)
                   state.current_time,
                   state.current_ms,
                   state.full_time,
-                  state.last_time);
+                  state.last_time);		
         log_print("**[update_state]abuflevel=%.08f vbublevel=%.08f abufrp=%x vbufrp=%x read_end=%d\n",
                   state.audio_bufferlevel,
                   state.video_bufferlevel,
@@ -239,6 +239,7 @@ int update_player_states(play_para_t *para, int force)
                   para->vbuffer.buffer_rp,
                   para->playctrl_info.read_end_flag);
         fn = cb->update_statue_callback;
+
         if (fn) {
             fn(para->player_id, &state);
         }
@@ -246,7 +247,7 @@ int update_player_states(play_para_t *para, int force)
         para->state.error_no = 0;
         player_hwbuflevel_update(para);
     }
-    return 0;
+	return 0;
 }
 
 int cmd2str(player_cmd_t *cmd, char *buf)

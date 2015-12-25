@@ -79,7 +79,7 @@ int am_getconfig(const char * path, char *val, const char * def)
     if (!amconfig_inited) {
         am_config_init();
     }
-    val[0]="\0";	
+    val[0]="\0";    
     lp_lock(&config_lock);
     i = get_matched_index(path);
     if (i >= 0) {
@@ -89,12 +89,12 @@ int am_getconfig(const char * path, char *val, const char * def)
     }
     lp_unlock(&config_lock);
 #ifdef ANDROID
-	if(i<0){
-		/*get failed,get from android prop settings*/
-	 	ret=property_get(path, val, def);	
-		if(ret>0)
-			i=1;
-	}
+    if(i<0){
+        /*get failed,get from android prop settings*/
+        ret=property_get(path, val, def);   
+        if(ret>0)
+            i=1;
+    }
 #endif
     return strlen(val) ;
 }
@@ -152,7 +152,7 @@ int am_setconfig(const char * path, const char *val)
     ret = 0;
 end_out:
     if(setval!=NULL)
-    	free(setval);
+        free(setval);
     lp_unlock(&config_lock);
     return ret;
 }
@@ -234,3 +234,10 @@ int am_getconfig_bool_def(const char * path,int def)
     return def;
 }
 
+#ifndef ADROID
+int property_get(const char *key, char *value, const char *default_value)
+{
+    printf("player system property_get [%s] %s\n", __FILE__, __FUNCTION__);
+    return am_getconfig(key, value, default_value);
+}
+#endif  

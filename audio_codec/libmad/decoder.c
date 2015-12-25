@@ -58,9 +58,12 @@
 
 #ifndef _WIN32
 #include "../../amadec/adec-armdec-mgt.h"
+#define audio_codec_print printf
+#ifdef ANDROID
 #include <android/log.h>
-#define  LOG_TAG    "audio_codec"
+#define  LOG_TAG    "MadDecoder"
 #define audio_codec_print(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
+#endif 
 #else
 #define audio_codec_print printf
 #endif
@@ -889,6 +892,8 @@ int audio_dec_init(
 #endif
 )
 {
+    audio_codec_print("\n\n[%s]adec_ops=%x",__FUNCTION__,adec_ops);
+    audio_codec_print("\n\n[%s]BuildDate--%s  BuildTime--%s adec_ops=%x",__FUNCTION__,__DATE__,__TIME__,adec_ops);
 	memset(&decoder, 0, sizeof(struct mad_decoder));
 
 	mad_decoder_init(&decoder, 0/*&buffer*/,
@@ -921,7 +926,7 @@ int audio_dec_init(
 	mad_stream_options(stream, decoder.options);
     
 #ifndef _WIN32
-    adec_ops->nInBufSize = 10*1024;
+    adec_ops->nInBufSize = 5*1024;
     adec_ops->nOutBufSize = 500*1024;
 #endif
 	audio_codec_print("libmad init ok!\n");
